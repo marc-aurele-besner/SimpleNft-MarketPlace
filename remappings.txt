@@ -1,0 +1,3 @@
+hardhat/=node_modules/hardhat/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts
+@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable
