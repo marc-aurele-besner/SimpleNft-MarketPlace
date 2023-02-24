@@ -1,0 +1,28 @@
+{
+  "name": "simplenft-marketplace",
+  "version": "1.0.0",
+  "description": "Smart Contract of a simple Market Place for fix price NFTS sales.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marc-aurele-besner/SimpleNft-MarketPlace.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marc-aurele-besner/SimpleNft-MarketPlace/issues"
+  },
+  "homepage": "https://github.com/marc-aurele-besner/SimpleNft-MarketPlace#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts-upgradeable": "^4.8.1",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
+    "hardhat": "^2.12.7",
+    "hardhat-awesome-cli": "^0.1.1"
+  }
+}
