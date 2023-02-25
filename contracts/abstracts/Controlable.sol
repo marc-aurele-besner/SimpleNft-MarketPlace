@@ -4,9 +4,6 @@ pragma solidity ^0.8.19;
 abstract contract Controlable {
     mapping(address => mapping(uint => bool)) private blacklistToken;
     mapping(address => bool) private blacklistUser;
-    mapping(address => bool) public admin;
-    mapping(address => bool) public treasury;
-    mapping(address => bool) public moderator;
     
     string public transactionFee;
 
@@ -37,12 +34,20 @@ abstract contract Controlable {
     // }
 
     // Moderator
-    function _blacklistToken(address tokenContract, uint256 tokenId) internal onlyModerator returns (bool success) {
-        blacklistToken[tokenContract][tokenId] = true;
+    function _blacklistToken(address tokenContract, uint256 tokenId, bool set) internal onlyModerator returns (bool success) {
+        if (set == true) {
+            blacklistToken[tokenContract][tokenId] = true;
+        } else {
+            delete blacklistToken[tokenContract][tokenId];
+        }
     }
 
-    function _blacklistUser(address userAddress) internal onlyModerator returns (bool success) {
-        blacklistUser[userAddress] = true; 
+    function _blacklistUser(address userAddress, bool set) internal onlyModerator returns (bool success) {
+        if (set == true) {
+            blacklistUser[userAddress] = true; 
+        } else {
+            delete blacklistuser[userAddress];
+        }
     }
 
     function transactionFee() public returns (uint32 _transactionFee) {
@@ -54,14 +59,14 @@ abstract contract Controlable {
     }
 
     function isAdmin(address account) public returns (bool isAdmin) {
-        return admin[account];
+
     }
 
     function isTreasury(address account) public returns (bool isTreasury) {
-        return treasury[account];
+
     }
 
     function isModerator(address account) public returns (bool isModerator) {
-        return moderator[account];
+
     }
 }
