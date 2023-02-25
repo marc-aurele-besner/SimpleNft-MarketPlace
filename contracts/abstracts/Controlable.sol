@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 abstract contract Controlable {
+
+    bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+    bytes32 public constant TREASURY_ROLE = keccak256("TREASURY_ROLE");
+
     mapping(address => mapping(uint => bool)) private blacklistToken;
     mapping(address => bool) private blacklistUser;
     
@@ -9,21 +14,11 @@ abstract contract Controlable {
 
     event TransactionFeeChanged(uint indexed oldFee, uint indexed newFee);
 
-    modifier onlyModerator() {
-        require(moderator[msg.sender] == true, "Is not a moderator");
-        _;
-    }
-
-    modifier onlyAdmin() {
-        require(admin[msg.sender] == true, "Is not an admin");
-        _;
-    }
-
     function _changeSupportedContract(address contractAddress) internal returns (bool success) {
 
     }
 
-    function _changeTransactionFee(uint32 _transactionFee) internal onlyAdmin returns (bool success) {
+    function _changeTransactionFee(uint32 _transactionFee) internal onlyRole(DEFAULT_ADMIN_ROLE) returns (bool success) {
         transactionFee = _transactionFee;
         emit TransactionFeeChanged(_transactionFee, transactionFee);
     }
@@ -34,7 +29,7 @@ abstract contract Controlable {
     // }
 
     // Moderator
-    function _blacklistToken(address tokenContract, uint256 tokenId, bool set) internal onlyModerator returns (bool success) {
+    function _blacklistToken(address tokenContract, uint256 tokenId, bool set) internal onlyRole(MODERATOR_ROLE) returns (bool success) {
         if (set == true) {
             blacklistToken[tokenContract][tokenId] = true;
         } else {
@@ -42,7 +37,7 @@ abstract contract Controlable {
         }
     }
 
-    function _blacklistUser(address userAddress, bool set) internal onlyModerator returns (bool success) {
+    function _blacklistUser(address userAddress, bool set) internal onlyRole(MODERATOR_ROLE) returns (bool success) {
         if (set == true) {
             blacklistUser[userAddress] = true; 
         } else {
@@ -59,14 +54,14 @@ abstract contract Controlable {
     }
 
     function isAdmin(address account) public returns (bool isAdmin) {
-
+        return hasRole(DEFAULT_ADMIN_ROLE, account);
     }
 
     function isTreasury(address account) public returns (bool isTreasury) {
-
+        return hasRole(TREASURY_ROLE, account);
     }
 
     function isModerator(address account) public returns (bool isModerator) {
-
+        return hasRole(MODERATOR_ROLE, account);
     }
 }
