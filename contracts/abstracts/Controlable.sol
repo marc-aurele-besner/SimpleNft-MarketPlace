@@ -24,9 +24,9 @@ abstract contract Controlable {
     }
 
     // Treasury
-    // function _withdrawTransactionFee() internal onlyAdmin returns (bool success) {
-    //     (success, ) = payable(treasury).call{ value: address.treasury.balance }('');
-    // }
+    function _withdrawTransactionFee() internal onlyRole(TREASURY_ROLE) returns (bool success) {
+        (success, ) = payable(msg.sender).call{ value: address(this).balance }("");
+    }
 
     // Moderator
     function _blacklistToken(address tokenContract, uint256 tokenId, bool set) internal onlyRole(MODERATOR_ROLE) returns (bool success) {
