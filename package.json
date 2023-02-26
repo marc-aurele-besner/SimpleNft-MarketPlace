@@ -24,5 +24,8 @@
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "hardhat": "^2.12.7",
     "hardhat-awesome-cli": "^0.1.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3"
   }
 }
