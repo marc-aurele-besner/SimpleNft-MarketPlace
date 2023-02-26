@@ -2,6 +2,18 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+
+interface IERC20 {
+    function balanceOf(
+        address account
+    ) external returns (uint256);
+
+    function transfer(
+        address to,
+        uint256 amount
+    ) external returns (bool);
+}
+
 abstract contract Controlable {
 
     bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
@@ -24,8 +36,11 @@ abstract contract Controlable {
     }
 
     // Treasury
-    function _withdrawTransactionFee() internal onlyRole(TREASURY_ROLE) returns (bool success) {
-        (success, ) = payable(msg.sender).call{ value: address(this).balance }("");
+    function _withdrawTransactionFee(address tokenAddress) internal onlyRole(TREASURY_ROLE) returns (bool success) {
+        IERC20 token = IERC20(tokenAddress);
+        uint256 balance = token.balanceOf(address(this));
+        require(token.transfer(msg.sender, balance), "Controlable: Transfer failed");
+        return true;
     }
 
     // Moderator
