@@ -26,6 +26,7 @@
     "hardhat-awesome-cli": "^0.1.1"
   },
   "dependencies": {
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "transaction-retry-tool": "^0.1.1"
   }
 }
