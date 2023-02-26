@@ -7,6 +7,10 @@ abstract contract ListingManager {
         address tokenContract;
         uint tokenId;
         uint salePrice;
+        address seller;
+        address buyer;
+        uint listingTimestamp;
+        uint buyTimestamp;
     }
 
     uint private listingId = 0;
