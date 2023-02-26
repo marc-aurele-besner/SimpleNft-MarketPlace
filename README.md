@@ -15,7 +15,7 @@ This project demonstrates a basic NFT's Marketplace contract setup with Hardhat 
 > **Warning**
 > This smart contract repository was created for educational purposes only, to teach the basics of Solidity programming, testing with Hardhat and Foundry. It is not recommended for use in production as it has not undergone extensive testing and may contain undiscovered bugs and errors. Please use at your own risk.
 
-## Fonctionality
+## Functionality
 
 **These contracts have these functionality**:
 
