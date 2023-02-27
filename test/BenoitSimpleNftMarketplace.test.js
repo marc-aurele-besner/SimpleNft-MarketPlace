@@ -58,6 +58,10 @@ it("is the ownerShip changeable"){
 
 };
 
+it("can owner change transaction fees (should be"){
+
+};
+
 // admin / moderator
 
 it("is the moderator able to change ownerShip (should not)"){
