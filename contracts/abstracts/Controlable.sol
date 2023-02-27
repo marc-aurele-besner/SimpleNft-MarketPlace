@@ -41,4 +41,34 @@ abstract contract Controlable {
     function isModerator(address account) public returns (bool isModerator) {
 
     }
+    
+    // Admin || Team management
+
+    // if you want to resell the NFTmarketPlace : 
+    function transferOwnership(address newAdmin) external require(newAdmin != address(0), "new admin is the zero address") {
+        require(msg.sender == admin, "caller is not the admin");
+        require(newAdmin != address(0), "new admin is the zero address");
+    }
+    // adding new address to addModerator
+
+    function addModerator(address account) internal returns (bool success) {
+       require(msg.sender == admin, "caller is not the admin");
+       require(newAdmin != address(0), "new admin is the zero address");
+    }
+    function removeModerator(address account) internal returns(bool success) {
+       require(msg.sender == admin, "caller is not the admin");
+       require(newAdmin != address(0), "new admin is the zero address");
+    }
+
+    }
+    function promoteModerator(address account) internal returns(bool success) {
+       require(msg.sender == admin, "caller is not the admin");
+       require(newAdmin != address(0), "new admin is the zero address");
+    }
+
+    function demoteModerator(address account) internal returns(bool success) {
+       require(msg.sender == admin, "caller is not the admin");
+       require(newAdmin != address(0), "new admin is the zero address");
+    }
+
 }
