@@ -53,22 +53,22 @@ abstract contract Controlable {
 
     function addModerator(address account) internal returns (bool success) {
        require(msg.sender == admin, "caller is not the admin");
-       require(newAdmin != address(0), "new admin is the zero address");
+       require(account != address(0), "new admin is the zero address");
     }
     function removeModerator(address account) internal returns(bool success) {
        require(msg.sender == admin, "caller is not the admin");
-       require(newAdmin != address(0), "new admin is the zero address");
+       require(account != address(0), "new admin is the zero address");
     }
 
     }
     function promoteModerator(address account) internal returns(bool success) {
        require(msg.sender == admin, "caller is not the admin");
-       require(newAdmin != address(0), "new admin is the zero address");
+       require(account != address(0), "new admin is the zero address");
     }
 
     function demoteModerator(address account) internal returns(bool success) {
        require(msg.sender == admin, "caller is not the admin");
-       require(newAdmin != address(0), "new admin is the zero address");
+       require(account != address(0), "new admin is the zero address");
     }
 
-}
+
