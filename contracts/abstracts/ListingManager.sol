@@ -3,7 +3,9 @@ pragma solidity ^0.8.19;
 
 import './Controlable.sol';
 
-abstract contract ListingManager is Controlable {
+import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+
+abstract contract ListingManager is Controlable, IERC721Receiver {
   struct Listing {
     address tokenContract;
     uint tokenId;
@@ -22,7 +24,11 @@ abstract contract ListingManager is Controlable {
   event Sale();
 
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice) internal returns (uint256 listingId) {
-    // To-Do: Receive nfts with safeTransferFrom
+    require(salePrice > 0, 'Sell price must be above zero');
+    require(msg.value == BASE_TRANSACTION_FEE, 'Not enough ether for transaction fee');
+
+    IERC721(tokenContract).safeTransferFrom(msg.sender, address(this), tokenId);
+    address(this).transfer(BASE_TRANSACTION_FEE);
 
     Listing memory listing = Listing(tokenContract, tokenId, salePrice, msg.sender, address(0), block.timestamp, 0);
     _listings[_listingId] = listing;
@@ -36,8 +42,6 @@ abstract contract ListingManager is Controlable {
     // Calculate fees
     // Increment fee counter
     // Calculate rest of amount to send to seller
-
     // To-Do: Send sale amount minus fees to seller
-
   }
 }
