@@ -21,9 +21,14 @@ abstract contract Controlable {
             return true;
         }
     }
-    
-    function _changeTransactionFee(uint32 transactionFee) internal returns (bool success) {
 
+    uint32 public transactionFee;
+    function _changeTransactionFee(uint32 transactionFee) internal returns (bool success) {
+        require(msg.sender == owner, "Vous n'avez pas les autorisations nécessaires.");
+        
+        transactionFee = newTransactionFee;
+        emit TransactionFeeChanged(newTransactionFee);
+        return true;
     }
 
     // Treasury
