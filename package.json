@@ -23,6 +23,12 @@
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "hardhat": "^2.12.7",
-    "hardhat-awesome-cli": "^0.1.1"
+    "hardhat-awesome-cli": "^0.1.1",
+    "prettier": "^2.8.4",
+    "prettier-plugin-solidity": "^1.1.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "transaction-retry-tool": "^0.1.1"
   }
 }
