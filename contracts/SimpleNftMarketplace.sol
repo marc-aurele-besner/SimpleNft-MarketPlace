@@ -19,7 +19,7 @@ contract SimpleNftMarketplace is Controlable, ListingManager, ValidateSignature 
     }
 
     function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
-
+        _createListing(tokenContract, tokenId, salePrice);
     }
     function buyListing(uint256 listingId) external returns (bool success) {
 
