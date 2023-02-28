@@ -50,5 +50,7 @@ abstract contract ListingManager is Controlable {
     _listings[listingId].buyTimestamp = block.timestamp;
 
     _accumulatedTransactionFee += listingFee;
+
+    emit Sale();
   }
 }
