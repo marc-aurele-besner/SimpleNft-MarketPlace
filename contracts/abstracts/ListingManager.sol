@@ -25,10 +25,8 @@ abstract contract ListingManager is Controlable, IERC721Receiver {
 
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice) internal returns (uint256 listingId) {
     require(salePrice > 0, 'Sell price must be above zero');
-    require(msg.value == BASE_TRANSACTION_FEE, 'Not enough ether for transaction fee');
 
     IERC721(tokenContract).safeTransferFrom(msg.sender, address(this), tokenId);
-    address(this).transfer(BASE_TRANSACTION_FEE);
 
     Listing memory listing = Listing(tokenContract, tokenId, salePrice, msg.sender, address(0), block.timestamp, 0);
     _listings[_listingId] = listing;
