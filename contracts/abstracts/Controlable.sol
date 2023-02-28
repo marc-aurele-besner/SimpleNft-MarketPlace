@@ -103,4 +103,6 @@ abstract contract Controlable {
     function isModerator(address account) public returns (bool isModerator) {
         return hasRole(MODERATOR_ROLE, account);
     }
+    
+
 }

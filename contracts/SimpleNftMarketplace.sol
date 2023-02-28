@@ -10,6 +10,7 @@ contract SimpleNftMarketplace is Controlable, ListingManager, ValidateSignature 
     string private _version;
 
     uint32 public constant BASE_TRANSACTION_FEE = 100_000;
+  
 
     function name() external view returns (string memory name) {
         return _name;
@@ -44,6 +45,18 @@ contract SimpleNftMarketplace is Controlable, ListingManager, ValidateSignature 
     function changeTransactionFee(uint32 transactionFee) external returns (bool success) {
 
     }
+
+    //transfer ownership 
+    function transferOwnership(address newOwner) external returns (bool success) {
+        require(newOwner != address(0), "Invalid address specified");
+        require(newOwner != owner, "this address is already the owner");
+        require(msg.sender == owner, "Only the current owner can transfer ownership");
+
+        owner = newOwner;
+        emit OwnershipTransferred(owner, newOwner);
+        return true;
+    }
+
 
     // Treasury
     function withdrawTransactionFee() external returns (bool success) {
