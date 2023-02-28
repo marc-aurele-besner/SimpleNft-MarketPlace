@@ -13,23 +13,26 @@ abstract contract ListingManager {
         uint buyTimestamp;
     }
 
-    uint private listingId = 0;
-    mapping(uint => Listing) private _listings;
+    uint256 private _listingId = 0;
+    mapping(uint256 => Listing) private _listings;
     
-    event Listing();
+    event ListingCreated();
     event Sale();
 
     function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice) internal returns (uint256 listingId) {
         Listing memory listing = Listing(
             tokenContract,
             tokenId,
-            salePrice
+            salePrice,
+            msg.sender,
+            address(0),
+            block.timestamp,
+            0
         );
-
-        listingId++;
-        _listings[listingsId] = listing;
+        _listings[_listingId] = listing;
+        _listingId++;
         
-        emit Listing();
+        emit ListingCreated();
     }
 
     function _buyListing(uint256 listingId) internal returns (bool success) {
