@@ -61,4 +61,8 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {}
 
   function isSupportedContract(address tokenContract) external view returns (bool isSupported) {}
+
+  function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
+    return _calculateListingFee(listingId);
+}
 }

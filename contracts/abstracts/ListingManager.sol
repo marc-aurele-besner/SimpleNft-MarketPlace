@@ -21,6 +21,11 @@ abstract contract ListingManager is Controlable {
   event ListingCreated();
   event Sale();
 
+  function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
+    uint256 fee = (_listings[listingId].salePrice * BASE_TRANSACTION_FEE);
+    return fee;
+  }
+
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice) internal returns (uint256 listingId) {
     // To-Do: Receive nfts with safeTransferFrom
 
@@ -32,12 +37,18 @@ abstract contract ListingManager is Controlable {
   }
 
   function _buyListing(uint256 listingId) internal returns (bool success) {
-    // To-Do: Receive token with transferFrom or safeTransferFrom
-    // Calculate fees
-    // Increment fee counter
-    // Calculate rest of amount to send to seller
+    require(!_listings[listingId].buyTimestamp, 'Listing already sold');
 
-    // To-Do: Send sale amount minus fees to seller
+    uint256 listingFee = _calculateListingFee(listingId);
+    uint256 amount = _listings[listingId].salePrice - listingFee;
 
+    _token.safeTransferFrom(msg.sender, address(this), _listings[listingId].salePrice);
+    _listings[listingId].seller.transfer(amount);
+    IERC721(_listings[listingId].tokenContract).safeTransferFrom(address(this), msg.sender, _listings[listingId].tokenId);
+
+    _listings[listingId].buyer = msg.sender;
+    _listings[listingId].buyTimestamp = block.timestamp;
+
+    _accumulatedTransactionFee += listingFee;
   }
 }
