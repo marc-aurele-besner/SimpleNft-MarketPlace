@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import './abstracts/Controlable.sol';
 import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
-contract SimpleNftMarketplace is Controlable, ListingManager, ValidateSignature {
+contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   string private _name;
   string private _version;
-
-  uint32 public constant BASE_TRANSACTION_FEE = 100_000;
 
   function name() external view returns (string memory) {
     return _name;
@@ -55,7 +52,7 @@ contract SimpleNftMarketplace is Controlable, ListingManager, ValidateSignature 
 
   // Read operation
 
-  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {}
+  function listingPrice(uint256 listingId) external view onlyAdmin returns (uint256 listingPrice) {}
 
   function isListingActive(uint256 listingId) external view returns (bool isActive) {}
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import '@openzeppelin/contracts/access/AccessControl.sol';
+import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
 interface IERC20 {
   function balanceOf(address account) external returns (uint256);
@@ -9,7 +9,7 @@ interface IERC20 {
   function transfer(address to, uint256 amount) external returns (bool);
 }
 
-abstract contract Controlable is AccessControl {
+abstract contract Controlable is AccessControlUpgradeable {
   bytes32 public constant MODERATOR_ROLE = keccak256('MODERATOR_ROLE');
   bytes32 public constant TREASURY_ROLE = keccak256('TREASURY_ROLE');
 
@@ -75,21 +75,21 @@ abstract contract Controlable is AccessControl {
     }
   }
 
-  function transactionFee() public returns (uint32) {
+  function transactionFee() public view returns (uint32) {
     return _transactionFee;
   }
 
   function token() public returns (address tokenAddress) {}
 
-  function isAdmin(address account) public returns (bool) {
+  function isAdmin(address account) public view returns (bool) {
     return hasRole(DEFAULT_ADMIN_ROLE, account);
   }
 
-  function isTreasury(address account) public returns (bool) {
+  function isTreasury(address account) public view returns (bool) {
     return hasRole(TREASURY_ROLE, account);
   }
 
-  function isModerator(address account) public returns (bool) {
+  function isModerator(address account) public view returns (bool) {
     return hasRole(MODERATOR_ROLE, account);
   }
 }
