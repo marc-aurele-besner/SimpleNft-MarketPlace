@@ -35,24 +35,24 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   function buyListing(uint256 listingId, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {}
 
   // Moderator || Listing creator
-  function cancelListing(uint256 listingId) external returns (bool success) {}
+  function cancelListing(uint256 listingId) external onlyModerator returns (bool success) {}
 
   // Admin
-  function changeSupportedContract(address contractAddress, bool isSupported) external returns (bool success) {}
+  function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {}
 
-  function changeTransactionFee(uint32 transactionFee) external returns (bool success) {}
+  function changeTransactionFee(uint32 transactionFee) external onlyAdmin returns (bool success) {}
 
   // Treasury
-  function withdrawTransactionFee() external returns (bool success) {}
+  function withdrawTransactionFee() external onlyTreasury returns (bool success) {}
 
   // Moderator
-  function blacklistToken(address tokenContract, uint256 tokenId) external returns (bool success) {}
+  function blacklistToken(address tokenContract, uint256 tokenId) external onlyModerator returns (bool success) {}
 
-  function blacklistUser(address userAddress) external returns (bool success) {}
+  function blacklistUser(address userAddress) external onlyModerator returns (bool success) {}
 
   // Read operation
 
-  function listingPrice(uint256 listingId) external view onlyAdmin returns (uint256 listingPrice) {}
+  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {}
 
   function isListingActive(uint256 listingId) external view returns (bool isActive) {}
 

@@ -31,7 +31,17 @@ abstract contract Controlable is AccessControlUpgradeable {
     _;
   }
 
-  function _changeSupportedContract(address contractAddress) internal returns (bool success) {
+  modifier onlyModerator() {
+    require(isModerator(msg.sender), 'Controlable: Only moderator');
+    _;
+  }
+
+  modifier onlyTreasury() {
+    require(isTreasury(msg.sender), 'Controlable: Only treasury');
+    _;
+  }
+
+  function _changeSupportedContract(address contractAddress) internal onlyAdmin returns (bool success) {
     if (supportedContracts[contractAddress]) {
       // Le contrat est déjà pris en charge, donc on le supprime
       supportedContracts[contractAddress] = false;
@@ -44,7 +54,7 @@ abstract contract Controlable is AccessControlUpgradeable {
     return true;
   }
 
-  function _changeTransactionFee(uint32 transactionFee_) internal returns (bool success) {
+  function _changeTransactionFee(uint32 transactionFee_) internal onlyAdmin returns (bool success) {
     uint32 oldFee = _transactionFee;
     _transactionFee = transactionFee_;
     emit TransactionFeeChanged(oldFee, transactionFee_);
@@ -52,13 +62,13 @@ abstract contract Controlable is AccessControlUpgradeable {
   }
 
   // Treasury
-  function _withdrawTransactionFee() internal returns (bool success) {
+  function _withdrawTransactionFee() internal onlyTreasury returns (bool success) {
     require(_token.transfer(msg.sender, _accumulatedTransactionFee), 'Controlable: Transfer failed');
     return true;
   }
 
   // Moderator
-  function _blacklistToken(address tokenContract, uint256 tokenId, bool isBlacklisted) internal returns (bool success) {
+  function _blacklistToken(address tokenContract, uint256 tokenId, bool isBlacklisted) internal onlyModerator returns (bool success) {
     if (isBlacklisted == true) {
       blacklistToken[tokenContract][tokenId] = true;
     } else {
@@ -67,7 +77,7 @@ abstract contract Controlable is AccessControlUpgradeable {
     success = true;
   }
 
-  function _blacklistUser(address userAddress, bool set) internal returns (bool success) {
+  function _blacklistUser(address userAddress, bool set) internal onlyModerator returns (bool success) {
     if (set == true) {
       blacklistUser[userAddress] = true;
     } else {
