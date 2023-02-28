@@ -25,7 +25,7 @@ abstract contract Controlable {
     uint32 public transactionFee;
     function _changeTransactionFee(uint32 transactionFee) internal returns (bool success) {
         require(msg.sender == owner, "Vous n'avez pas les autorisations nécessaires.");
-        
+
         transactionFee = newTransactionFee;
         emit TransactionFeeChanged(newTransactionFee);
         return true;
@@ -33,7 +33,16 @@ abstract contract Controlable {
 
     // Treasury
     function _withdrawTransactionFee() internal returns (bool success) {
+        
+        require(msg.sender == owner, "Vous n'avez pas les autorisations nécessaires.");
 
+        uint256 feeBalance = address(this).balance;
+        require(feeBalance > 0, "Pas de frais de transaction à retirer.");
+
+        (bool sent, ) = owner.call{value: feeBalance}("");
+        require(sent, "Le retrait des frais de transaction a échoué.");
+
+        return true;
     }
 
     // Moderator
