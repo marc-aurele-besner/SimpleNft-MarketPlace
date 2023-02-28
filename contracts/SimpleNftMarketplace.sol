@@ -8,6 +8,11 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   string private _name;
   string private _version;
 
+  modifier onlyListingOwner(uint256 listingId) {
+    require(msg.sender == _listings[_listingId].seller || isAdmin(msg.sender), 'Only listing owner or moderator');
+    _;
+  }
+
   function name() external view returns (string memory) {
     return _name;
   }
@@ -35,7 +40,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   function buyListing(uint256 listingId, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {}
 
   // Moderator || Listing creator
-  function cancelListing(uint256 listingId) external onlyModerator returns (bool success) {}
+  function cancelListing(uint256 listingId) external onlyListingOwner(uint256 listingId) returns (bool success) {}
 
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {}
