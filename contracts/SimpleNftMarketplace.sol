@@ -16,7 +16,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     return _version;
   }
 
-  function createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) external returns (uint256 listingId) {
+  function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
     _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
