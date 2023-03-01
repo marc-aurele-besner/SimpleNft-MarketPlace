@@ -3,9 +3,9 @@ pragma solidity ^0.8.19;
 
 import './Controlable.sol';
 
-import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 
-abstract contract ListingManager is Controlable, IERC721Receiver {
+abstract contract ListingManager is Controlable {
   struct Listing {
     address tokenContract;
     uint tokenId;
