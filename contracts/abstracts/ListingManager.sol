@@ -20,7 +20,7 @@ abstract contract ListingManager is Controlable {
   uint256 private _listingId = 0;
   mapping(uint256 => Listing) internal _listings;
 
-  event ListingCreated();
+  event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
   event Sale();
 
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
@@ -32,7 +32,7 @@ abstract contract ListingManager is Controlable {
     _listings[_listingId] = listing;
     _listingId++;
 
-    emit ListingCreated();
+    emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
   }
 
   function _buyListing(uint256 listingId) internal returns (bool success) {
