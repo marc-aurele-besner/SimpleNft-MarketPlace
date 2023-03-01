@@ -22,7 +22,7 @@ abstract contract ListingManager is Controlable {
   event Sale();
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
-    uint256 fee = (_listings[listingId].salePrice * BASE_TRANSACTION_FEE);
+    uint256 fee = (_listings[listingId].salePrice * transactionFee) / BASE_TRANSACTION_FEE;
     return fee;
   }
 
