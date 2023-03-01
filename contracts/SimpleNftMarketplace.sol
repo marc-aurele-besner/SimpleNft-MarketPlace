@@ -20,8 +20,8 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     _createListing(tokenContract, tokenId, salePrice);
   }
 
-  function buyListing(uint256 listingId, address buyer) external returns (bool success) {
-    _buyListing(listingId, msg.sender);
+  function buyListing(uint256 listingId) external returns (bool success) {
+    _buyListing(listingId);
   }
 
   function createListing(
@@ -35,7 +35,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   ) external returns (uint256 listingId) {}
 
   function buyListing(uint256 listingId, address buyer, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {
-    _buyListing(listingId, msg.sender)
+    _buyListing(listingId, buyer)
   }
 
   // Moderator || Listing creator
