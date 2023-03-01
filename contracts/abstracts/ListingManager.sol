@@ -36,17 +36,17 @@ abstract contract ListingManager is Controlable {
     emit ListingCreated();
   }
 
-  function _buyListing(uint256 listingId) internal returns (bool success) {
+  function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     require(!_listings[listingId].buyTimestamp, 'Listing already sold');
 
     uint256 listingFee = _calculateListingFee(listingId);
     uint256 amount = _listings[listingId].salePrice - listingFee;
 
-    _token.safeTransferFrom(msg.sender, address(this), _listings[listingId].salePrice);
+    _token.safeTransferFrom(buyer, address(this), _listings[listingId].salePrice);
     _listings[listingId].seller.transfer(amount);
-    IERC721(_listings[listingId].tokenContract).safeTransferFrom(address(this), msg.sender, _listings[listingId].tokenId);
+    IERC721(_listings[listingId].tokenContract).safeTransferFrom(address(this), buyer, _listings[listingId].tokenId);
 
-    _listings[listingId].buyer = msg.sender;
+    _listings[listingId].buyer = buyer;
     _listings[listingId].buyTimestamp = block.timestamp;
 
     _accumulatedTransactionFee += listingFee;
