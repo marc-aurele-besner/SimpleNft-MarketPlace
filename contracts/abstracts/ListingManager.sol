@@ -40,4 +40,8 @@ abstract contract ListingManager is Controlable {
     // To-Do: Send sale amount minus fees to seller
 
   }
+  function getListingDetail(uint256 listingId) public view returns (Listing memory) {
+    return _listings[listingId];
+  }
+  
 }
