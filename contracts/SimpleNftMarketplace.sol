@@ -40,7 +40,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   function buyListing(uint256 listingId, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {}
 
   // Moderator || Listing creator
-  function cancelListing(uint256 listingId) external onlyListingOwner(uint256 listingId) returns (bool success) {}
+  function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(uint256 listingId) returns (bool success) {}
 
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {}
