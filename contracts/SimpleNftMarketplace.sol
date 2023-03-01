@@ -5,8 +5,8 @@ import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string private _name;
-  string private _version;
+  string public constant NAME = "SimpleNft-MarketPlace";
+  string public constant VERSION = "0.0.1";
 
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
     require(msg.sender == _listings[_listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
@@ -14,11 +14,11 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   }
 
   function name() external view returns (string memory) {
-    return _name;
+    return NAME;
   }
 
   function version() external view returns (string memory) {
-    return _version;
+    return VERSION;
   }
 
   function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
