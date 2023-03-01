@@ -40,4 +40,19 @@ abstract contract ListingManager is Controlable {
     // To-Do: Send sale amount minus fees to seller
 
   }
+<<<<<<< Updated upstream
+=======
+  function getListingDetail(uint256 listingId) public view returns (Listing memory) {
+    return _listings[listingId];
+  }
+  
+  function isSold(uint256 listingId) public view returns (bool) {
+    if (_listings[listingId].buyTimestamp != 0) {
+        return true;
+    } else {
+        return false;
+    }
+  }
+
+>>>>>>> Stashed changes
 }
