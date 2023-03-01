@@ -23,12 +23,12 @@ abstract contract ListingManager is Controlable {
   event ListingCreated();
   event Sale();
 
-  function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice) internal returns (uint256 listingId) {
+  function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
     require(salePrice > 0, 'Sell price must be above zero');
 
-    IERC721(tokenContract).safeTransferFrom(msg.sender, address(this), tokenId);
+    IERC721(tokenContract).safeTransferFrom(seller, address(this), tokenId);
 
-    Listing memory listing = Listing(tokenContract, tokenId, salePrice, msg.sender, address(0), block.timestamp, 0);
+    Listing memory listing = Listing(tokenContract, tokenId, salePrice, seller, address(0), block.timestamp, 0);
     _listings[_listingId] = listing;
     _listingId++;
 
