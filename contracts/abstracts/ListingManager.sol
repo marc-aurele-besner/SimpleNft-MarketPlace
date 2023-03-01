@@ -19,7 +19,7 @@ abstract contract ListingManager is Controlable {
   mapping(uint256 => Listing) internal _listings;
 
   event ListingCreated();
-  event Sale();
+  event Sale(uint256 listingId, address buyer);
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
     uint256 fee = (_listings[listingId].salePrice * transactionFee) / BASE_TRANSACTION_FEE;
@@ -51,6 +51,6 @@ abstract contract ListingManager is Controlable {
 
     _accumulatedTransactionFee += listingFee;
 
-    emit Sale();
+    emit Sale(listingId, buyer);
   }
 }
