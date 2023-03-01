@@ -89,7 +89,9 @@ abstract contract Controlable is AccessControlUpgradeable {
     return _transactionFee;
   }
 
-  function token() public returns (address tokenAddress) {}
+  function token() public view returns (address tokenAddress) {
+    return address(_token);
+  }
 
   function isAdmin(address account) public view returns (bool) {
     return hasRole(DEFAULT_ADMIN_ROLE, account);
