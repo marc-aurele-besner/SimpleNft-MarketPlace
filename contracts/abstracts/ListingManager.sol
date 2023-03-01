@@ -43,7 +43,7 @@ abstract contract ListingManager is Controlable {
     uint256 amount = _listings[listingId].salePrice - listingFee;
 
     _token.safeTransferFrom(buyer, address(this), _listings[listingId].salePrice);
-    _listings[listingId].seller.transfer(amount);
+    _token.safeTransferFrom(address(this), _listings[listingId].seller, amount);
     IERC721(_listings[listingId].tokenContract).safeTransferFrom(address(this), buyer, _listings[listingId].tokenId);
 
     _listings[listingId].buyer = buyer;
