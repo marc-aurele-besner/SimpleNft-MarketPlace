@@ -24,11 +24,11 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     __ValidateSignature_init(name(), version());
   }
 
-  function name() public view returns (string memory) {
+  function name() public pure returns (string memory) {
     return NAME;
   }
 
-  function version() public view returns (string memory) {
+  function version() public pure returns (string memory) {
     return VERSION;
   }
 
@@ -54,9 +54,9 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     bytes32 hash = _hashTypedDataV4(structHash);
 
     address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-    // require(signer == seller, "SimpleNftMarketplace: invalid signature");
+    require(signer == seller, "SimpleNftMarketplace: invalid signature");
 
-    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
   function buyListing(uint256 listingId, address buyer, 
@@ -68,10 +68,10 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
 
     bytes32 hash = _hashTypedDataV4(structHash);
 
-    // address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-    // require(signer == buyer, "SimpleNftMarketplace: invalid signature");
+    address signer = ECDSAUpgradeable.recover(hash, v, r, s);
+    require(signer == buyer, "SimpleNftMarketplace: invalid signature");
     
-    _buyListing(listingId, buyer);
+    return _buyListing(listingId, buyer);
   }
 
   // Moderator || Listing creator

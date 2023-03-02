@@ -36,6 +36,7 @@ abstract contract ListingManager is Controlable {
 
     Listing memory listing = Listing(tokenContract, tokenId, salePrice, seller, address(0), block.timestamp, 0);
     _listings[_listingId] = listing;
+    listingId = _listingId;
     _listingId++;
 
     emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
@@ -58,6 +59,7 @@ abstract contract ListingManager is Controlable {
     _accumulatedTransactionFee += listingFee;
 
     emit Sale(listingId, buyer);
+    return true;
   }
  
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
@@ -66,9 +68,8 @@ abstract contract ListingManager is Controlable {
   
   function isSold(uint256 listingId) public view returns (bool) {
     if (_listings[listingId].buyTimestamp != 0) {
-        return true;
-    } else {
-        return false;
+      return true;
     }
+    return false;
   }
 }
