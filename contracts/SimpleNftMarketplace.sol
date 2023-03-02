@@ -5,22 +5,29 @@ import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string private _name;
-  string private _version;
+  string public constant NAME = "SimpleNft-MarketPlace";
+  string public constant VERSION = "0.0.1";
+
+  modifier onlyListingOwnerOrModerator(uint256 listingId) {
+    require(msg.sender == _listings[_listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
+    _;
+  }
 
   function name() external view returns (string memory) {
-    return _name;
+    return NAME;
   }
 
   function version() external view returns (string memory) {
-    return _version;
+    return VERSION;
   }
 
   function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
-    _createListing(tokenContract, tokenId, salePrice);
+    _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
-  function buyListing(uint256 listingId) external returns (bool success) {}
+  function buyListing(uint256 listingId) external returns (bool success) {
+    _buyListing(listingId);
+  }
 
   function createListing(
     address tokenContract,
@@ -30,12 +37,16 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     uint8 r,
     bytes32 s,
     bytes32 v
-  ) external returns (uint256 listingId) {}
+  ) external returns (uint256 listingId) {
+    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+  }
 
-  function buyListing(uint256 listingId, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {}
+  function buyListing(uint256 listingId, address buyer, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {
+    _buyListing(listingId, buyer)
+  }
 
   // Moderator || Listing creator
-  function cancelListing(uint256 listingId) external onlyModerator returns (bool success) {}
+  function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(uint256 listingId) returns (bool success) {}
 
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {}
@@ -61,4 +72,8 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {}
 
   function isSupportedContract(address tokenContract) external view returns (bool isSupported) {}
+
+  function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
+    return _calculateListingFee(listingId);
+  }
 }
