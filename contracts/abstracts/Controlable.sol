@@ -2,25 +2,20 @@
 pragma solidity ^0.8.19;
 
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
-
-interface IERC20 {
-  function balanceOf(address account) external returns (uint256);
-
-  function transfer(address to, uint256 amount) external returns (bool);
-}
+import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 
 abstract contract Controlable is AccessControlUpgradeable {
   bytes32 public constant MODERATOR_ROLE = keccak256('MODERATOR_ROLE');
   bytes32 public constant TREASURY_ROLE = keccak256('TREASURY_ROLE');
 
-  IERC20 private _token;
+  IERC20Upgradeable internal _token;
 
   mapping(address => mapping(uint => bool)) private blacklistToken;
   mapping(address => bool) private blacklistUser;
   mapping(address => bool) private supportedContracts;
 
-  uint32 private _transactionFee; // 100_000 = 1%
-  uint256 private _accumulatedTransactionFee;
+  uint32 internal _transactionFee; // 100_000 = 1%
+  uint256 internal _accumulatedTransactionFee;
 
   event TransactionFeeChanged(uint32 indexed oldFee, uint32 indexed newFee);
   event SupportedContractRemoved(address indexed contractAddress);
