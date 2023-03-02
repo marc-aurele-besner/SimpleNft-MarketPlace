@@ -3,6 +3,8 @@ pragma solidity ^0.8.19;
 
 import './Controlable.sol';
 
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
+
 abstract contract ListingManager is Controlable {
   struct Listing {
     address tokenContract;
@@ -18,7 +20,7 @@ abstract contract ListingManager is Controlable {
   uint256 private _listingId = 0;
   mapping(uint256 => Listing) internal _listings;
 
-  event ListingCreated();
+  event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
   event Sale(uint256 listingId, address buyer);
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
@@ -26,14 +28,16 @@ abstract contract ListingManager is Controlable {
     return fee;
   }
 
-  function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice) internal returns (uint256 listingId) {
-    // To-Do: Receive nfts with safeTransferFrom
+  function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
+    require(salePrice > 0, 'Sell price must be above zero');
 
-    Listing memory listing = Listing(tokenContract, tokenId, salePrice, msg.sender, address(0), block.timestamp, 0);
+    IERC721(tokenContract).safeTransferFrom(seller, address(this), tokenId);
+
+    Listing memory listing = Listing(tokenContract, tokenId, salePrice, seller, address(0), block.timestamp, 0);
     _listings[_listingId] = listing;
     _listingId++;
 
-    emit ListingCreated();
+    emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
   }
 
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
@@ -53,4 +57,9 @@ abstract contract ListingManager is Controlable {
 
     emit Sale(listingId, buyer);
   }
+ 
+  function getListingDetail(uint256 listingId) public view returns (Listing memory) {
+    return _listings[listingId];
+  }
+  
 }

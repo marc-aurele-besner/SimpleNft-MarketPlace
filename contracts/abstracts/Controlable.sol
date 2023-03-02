@@ -31,7 +31,17 @@ abstract contract Controlable is AccessControlUpgradeable {
     _;
   }
 
-  function _changeSupportedContract(address contractAddress) internal returns (bool success) {
+  modifier onlyModerator() {
+    require(isModerator(msg.sender), 'Controlable: Only moderator');
+    _;
+  }
+
+  modifier onlyTreasury() {
+    require(isTreasury(msg.sender), 'Controlable: Only treasury');
+    _;
+  }
+
+  function _changeSupportedContract(address contractAddress) internal onlyAdmin returns (bool success) {
     if (supportedContracts[contractAddress]) {
       // Le contrat est déjà pris en charge, donc on le supprime
       supportedContracts[contractAddress] = false;
@@ -79,7 +89,9 @@ abstract contract Controlable is AccessControlUpgradeable {
     return _transactionFee;
   }
 
-  function token() public returns (address tokenAddress) {}
+  function token() public view returns (address tokenAddress) {
+    return address(_token);
+  }
 
   function isAdmin(address account) public view returns (bool) {
     return hasRole(DEFAULT_ADMIN_ROLE, account);
