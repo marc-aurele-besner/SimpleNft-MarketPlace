@@ -11,7 +11,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
     require(msg.sender == _listings[_listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
     _;
-  }s
+  }
 
   function name() external view returns (string memory) {
     return NAME;
