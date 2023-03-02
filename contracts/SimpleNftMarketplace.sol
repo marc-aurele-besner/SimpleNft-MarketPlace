@@ -25,7 +25,9 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
-  function buyListing(uint256 listingId) external returns (bool success) {}
+  function buyListing(uint256 listingId) external returns (bool success) {
+    _buyListing(listingId);
+  }
 
   function createListing(
     address tokenContract,
@@ -39,7 +41,9 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
-  function buyListing(uint256 listingId, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {}
+  function buyListing(uint256 listingId, address buyer, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {
+    _buyListing(listingId, buyer)
+  }
 
   // Moderator || Listing creator
   function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(uint256 listingId) returns (bool success) {}
@@ -68,4 +72,8 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {}
 
   function isSupportedContract(address tokenContract) external view returns (bool isSupported) {}
+
+  function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
+    return _calculateListingFee(listingId);
+  }
 }

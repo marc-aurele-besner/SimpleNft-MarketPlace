@@ -21,7 +21,12 @@ abstract contract ListingManager is Controlable {
   mapping(uint256 => Listing) internal _listings;
 
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
-  event Sale();
+  event Sale(uint256 listingId, address buyer);
+
+  function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
+    uint256 fee = (_listings[listingId].salePrice * transactionFee) / BASE_TRANSACTION_FEE;
+    return fee;
+  }
 
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
     require(salePrice > 0, 'Sell price must be above zero');
@@ -35,13 +40,24 @@ abstract contract ListingManager is Controlable {
     emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
   }
 
-  function _buyListing(uint256 listingId) internal returns (bool success) {
-    // To-Do: Receive token with transferFrom or safeTransferFrom
-    // Calculate fees
-    // Increment fee counter
-    // Calculate rest of amount to send to seller
-    // To-Do: Send sale amount minus fees to seller
+  function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
+    require(!_listings[listingId].buyTimestamp, 'Listing already sold');
+
+    uint256 listingFee = _calculateListingFee(listingId);
+    uint256 amount = _listings[listingId].salePrice - listingFee;
+
+    _token.safeTransferFrom(buyer, address(this), _listings[listingId].salePrice);
+    _token.safeTransferFrom(address(this), _listings[listingId].seller, amount);
+    IERC721(_listings[listingId].tokenContract).safeTransferFrom(address(this), buyer, _listings[listingId].tokenId);
+
+    _listings[listingId].buyer = buyer;
+    _listings[listingId].buyTimestamp = block.timestamp;
+
+    _accumulatedTransactionFee += listingFee;
+
+    emit Sale(listingId, buyer);
   }
+ 
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
     return _listings[listingId];
   }
