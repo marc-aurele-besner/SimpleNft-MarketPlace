@@ -19,16 +19,23 @@ describe('SimpleNftMarketplace', function () {
   
     describe('onlyListingOwnerOrModerator', function () {
       it('should allow the seller to call the function', async function () {
-
+// logique a écrire 
       });
   
       it('should allow a moderator to call the function', async function () {
-        
+// logique a écrire 
       });
   
       it('should not allow someone who is not the seller or moderator to call the function', async function () {
-       
+// logique a écrire 
       });
+    });
+
+    describe('name', function () {
+        it("Should return the correct NAME", async function () {
+            const expectedName = "SimpleNft-MarketPlace";
+            const actualName = await contract.NAME;
+            expect(actualName).to.equal(expectedName);
     });
   });
   
