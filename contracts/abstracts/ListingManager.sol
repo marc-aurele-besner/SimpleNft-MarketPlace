@@ -61,5 +61,16 @@ abstract contract ListingManager is Controlable {
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
     return _listings[listingId];
   }
+
+    function getListingDetail(uint256 listingId) public view returns (Listing memory) {
+    return _listings[listingId];
+  }
   
+  function isSold(uint256 listingId) public view returns (bool) {
+    if (_listings[listingId].buyTimestamp != 0) {
+        return true;
+    } else {
+        return false;
+    }
+  }
 }
