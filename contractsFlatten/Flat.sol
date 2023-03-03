@@ -4543,6 +4543,7 @@ abstract contract ListingManager is Controlable {
 
     Listing memory listing = Listing(tokenContract, tokenId, salePrice, seller, address(0), block.timestamp, 0);
     _listings[_listingId] = listing;
+    listingId = _listingId;
     _listingId++;
 
     emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
@@ -4565,6 +4566,7 @@ abstract contract ListingManager is Controlable {
     _accumulatedTransactionFee += listingFee;
 
     emit Sale(listingId, buyer);
+    return true;
   }
  
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
@@ -4573,10 +4575,9 @@ abstract contract ListingManager is Controlable {
   
   function isSold(uint256 listingId) public view returns (bool) {
     if (_listings[listingId].buyTimestamp != 0) {
-        return true;
-    } else {
-        return false;
+      return true;
     }
+    return false;
   }
 }
 
@@ -4588,11 +4589,49 @@ pragma solidity ^0.8.19;
 
 abstract contract ValidateSignature is EIP712Upgradeable {
 
+    bytes32 private constant _CREATE_LISTING_TYPEHASH =
+        keccak256("CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)");
+    bytes32 private constant _BUY_LISTING_TYPEHASH =
+        keccak256("BuyListing(uint256 listingId,address buyer)");
+
     function __ValidateSignature_init(string memory name, string memory version) internal onlyInitializing {
         __EIP712_init(name, version);
     }
 
 
+    function _verifyCreateListing(
+        address tokenContract,
+        uint256 tokenId,
+        uint256 salePrice,
+        address seller,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal view returns (bool success) {
+        bytes32 structHash = keccak256(abi.encode(_CREATE_LISTING_TYPEHASH, tokenContract, tokenId, salePrice, seller));
+
+        bytes32 hash = _hashTypedDataV4(structHash);
+
+        address signer = ECDSAUpgradeable.recover(hash, v, r, s);
+        require(signer == seller, "ValidateSignature: invalid signature");
+
+        return true;
+    }
+
+    function _verifyBuyListing(uint256 listingId, address buyer, 
+        uint8 v,
+        bytes32 r,
+        bytes32 s) internal view returns (bool success) {
+
+        bytes32 structHash = keccak256(abi.encode(_BUY_LISTING_TYPEHASH, listingId, buyer));
+
+        bytes32 hash = _hashTypedDataV4(structHash);
+
+        address signer = ECDSAUpgradeable.recover(hash, v, r, s);
+        require(signer == buyer, "ValidateSignature: invalid signature");
+        
+        return true;
+    }
 }
 
 
@@ -4611,20 +4650,15 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     _;
   }
 
-  bytes32 private constant _CREATE_LISTING_TYPEHASH =
-    keccak256("CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)");
-  bytes32 private constant _BUY_LISTING_TYPEHASH =
-    keccak256("BuyListing(uint256 listingId,address buyer)");
-
   function initialize() external initializer {
     __ValidateSignature_init(name(), version());
   }
 
-  function name() public view returns (string memory) {
+  function name() public pure returns (string memory) {
     return NAME;
   }
 
-  function version() public view returns (string memory) {
+  function version() public pure returns (string memory) {
     return VERSION;
   }
 
@@ -4645,29 +4679,16 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     bytes32 r,
     bytes32 s
   ) external returns (uint256 listingId) {
-    bytes32 structHash = keccak256(abi.encode(_CREATE_LISTING_TYPEHASH, tokenContract, tokenId, salePrice, seller));
-
-    bytes32 hash = _hashTypedDataV4(structHash);
-
-    address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-    // require(signer == seller, "SimpleNftMarketplace: invalid signature");
-
-    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), "SimpleNftMarketplace: invalid signature");
+    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
   function buyListing(uint256 listingId, address buyer, 
     uint8 v,
     bytes32 r,
     bytes32 s) external returns (bool success) {
-
-    bytes32 structHash = keccak256(abi.encode(_BUY_LISTING_TYPEHASH, listingId, buyer));
-
-    bytes32 hash = _hashTypedDataV4(structHash);
-
-    // address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-    // require(signer == buyer, "SimpleNftMarketplace: invalid signature");
-    
-    _buyListing(listingId, buyer);
+    require(_verifyBuyListing(listingId, buyer, v, r, s), "SimpleNftMarketplace: invalid signature");
+    return _buyListing(listingId, buyer);
   }
 
   // Moderator || Listing creator
