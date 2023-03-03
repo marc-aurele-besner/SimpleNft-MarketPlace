@@ -17,7 +17,7 @@ describe('SimpleNftMarketplace', function () {
     describe('name', function () {
         it("Should return the correct NAME", async function () {
             const expectedName = "SimpleNft-MarketPlace";
-            const actualName = await contract.NAME();
+            const actualName = await contract.name();
             expect(actualName).to.equal(expectedName);
     });
   });
