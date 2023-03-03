@@ -1,24 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
 
 import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string public constant NAME = "SimpleNft-MarketPlace";
-  string public constant VERSION = "0.0.1";
+  string public constant NAME = 'SimpleNft-MarketPlace';
+  string public constant VERSION = '0.0.1';
 
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
     require(msg.sender == _listings[listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
     _;
   }
-
-  bytes32 private constant _CREATE_LISTING_TYPEHASH =
-    keccak256("CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)");
-  bytes32 private constant _BUY_LISTING_TYPEHASH =
-    keccak256("BuyListing(uint256 listingId,address buyer)");
 
   function initialize() external initializer {
     __ValidateSignature_init(name(), version());
@@ -49,28 +44,12 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     bytes32 r,
     bytes32 s
   ) external returns (uint256 listingId) {
-    bytes32 structHash = keccak256(abi.encode(_CREATE_LISTING_TYPEHASH, tokenContract, tokenId, salePrice, seller));
-
-    bytes32 hash = _hashTypedDataV4(structHash);
-
-    address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-    require(signer == seller, "SimpleNftMarketplace: invalid signature");
-
+    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), 'SimpleNftMarketplace: invalid signature');
     return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
-  function buyListing(uint256 listingId, address buyer, 
-    uint8 v,
-    bytes32 r,
-    bytes32 s) external returns (bool success) {
-
-    bytes32 structHash = keccak256(abi.encode(_BUY_LISTING_TYPEHASH, listingId, buyer));
-
-    bytes32 hash = _hashTypedDataV4(structHash);
-
-    address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-    require(signer == buyer, "SimpleNftMarketplace: invalid signature");
-    
+  function buyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) external returns (bool success) {
+    require(_verifyBuyListing(listingId, buyer, v, r, s), 'SimpleNftMarketplace: invalid signature');
     return _buyListing(listingId, buyer);
   }
 
