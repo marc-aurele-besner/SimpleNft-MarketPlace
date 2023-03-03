@@ -46,4 +46,20 @@ abstract contract ListingManager is Controlable {
     return _listings[listingId];
   }
   
+
+  
+  function getListing() public view returns (Listing memory) {
+    // avoir une visibilité sur toutes les listes de jetons existantes
+    return _listings;
+  }
+  
+
+  function editListing(uint256 listingId) internal returns (bool success) {
+    //modifier les paramètres d'une liste de jetons existante;
+  }
+
+  function deleteListing(uint256 listingId) internal returns (bool success) {
+    //supprimer une liste de jetons existante;
+  }
+
 }
