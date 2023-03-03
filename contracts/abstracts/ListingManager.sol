@@ -23,6 +23,7 @@ abstract contract ListingManager is Controlable {
 
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
   event Sale(uint256 listingId, address buyer);
+  event ListingPriceChanged(address tokenContract, uint256 tokenId, address buyer);
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
     uint256 fee = (_listings[listingId].salePrice * uint256(_transactionFee)) / BASE_TRANSACTION_FEE;
@@ -46,12 +47,12 @@ abstract contract ListingManager is Controlable {
 //que le mint soit différent de 0, que le token soit déja minté
 // que le sale price != du nouveau sale price 
   function _editListingPrice(uint256 listingID, uint256 newSalePrice) internal returns (bool success) {
-    require(listing.buyTimestamp != 0, 'NFT not minted');
-    require(newSalePrice != listing.salePrice, 'New price is the same as the current price');
-    listing.salePrice = newSalePrice;
-    
-    emit salePrice(newSalePrice, listing.tokenId);
-    return true; 
+    require(_listings[listingId].salePrice = 0, 'NFT minted');
+    require(newSalePrice != _listings[listingId].salePrice, 'New price is the same as the current price');
+    _listings[listingId].salePrice = newSalePrice;
+     
+    emit ListingPriceChanged(_listings[listingId].tokenContract, _listings[listingId].tokenId, newSalePrice);
+    return true;  
 }
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     Listing memory listing = _listings[listingId];
