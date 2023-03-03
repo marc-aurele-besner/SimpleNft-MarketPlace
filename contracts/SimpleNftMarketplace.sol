@@ -83,7 +83,10 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
 
   // Read operation
 
-  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {}
+  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {
+    Listing storage listing = _listings[listingId];
+    return listing.salePrice;
+  }
 
   function isListingActive(uint256 listingId) external view returns (bool isActive) {}
 
