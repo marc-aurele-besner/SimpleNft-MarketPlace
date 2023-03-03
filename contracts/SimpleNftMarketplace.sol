@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
 
 import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string public constant NAME = "SimpleNft-MarketPlace";
-  string public constant VERSION = "0.0.1";
+  string public constant NAME = 'SimpleNft-MarketPlace';
+  string public constant VERSION = '0.0.1';
 
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
     require(msg.sender == _listings[listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
@@ -44,15 +44,12 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     bytes32 r,
     bytes32 s
   ) external returns (uint256 listingId) {
-    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), "SimpleNftMarketplace: invalid signature");
+    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), 'SimpleNftMarketplace: invalid signature');
     return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
-  function buyListing(uint256 listingId, address buyer, 
-    uint8 v,
-    bytes32 r,
-    bytes32 s) external returns (bool success) {
-    require(_verifyBuyListing(listingId, buyer, v, r, s), "SimpleNftMarketplace: invalid signature");
+  function buyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) external returns (bool success) {
+    require(_verifyBuyListing(listingId, buyer, v, r, s), 'SimpleNftMarketplace: invalid signature');
     return _buyListing(listingId, buyer);
   }
 
