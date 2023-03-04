@@ -1,3 +1,35 @@
+//#37 read function tests
+
+it("does it return the correct listing price (should be)", async function () {
+
+});
+
+it("does it return true is the listing is active (should be)", async () => {
+
+});
+
+it("does it return true is the listing is active (should be)", async () => {
+
+});
+
+it("does it return true if a user is blacklisted (should be)", async () => {
+    
+});
+
+it("does it return true if a token is blacklisted (should be)", async () => {
+    
+});
+
+it("does it return true if a contract is supported (should be)", async () => {
+    
+});
+
+it("does it return the correct listing fee (should be)", async () => {
+    
+});
+
+
+
 
 // buy / sell 
 describe("SimpleNftMarketplace - Benoit", function () {
