@@ -6,12 +6,12 @@ pragma solidity ^0.8.0;
  */
 
 // import "hardhat/console.sol";
-import './utils/console.sol';
-import './utils/stdlib.sol';
-import './utils/test.sol';
-import { CheatCodes } from './utils/cheatcodes.sol';
+import '../utils/console.sol';
+import '../utils/stdlib.sol';
+import '../utils/test.sol';
+import { CheatCodes } from '../utils/cheatcodes.sol';
 
-import { MockERC721 } from '../MockERC721.sol';
+import { MockERC721 } from '../../mocks/MockERC721.sol';
 
 contract MockERC721Test is DSTest {
   Vm public constant vm = Vm(HEVM_ADDRESS);

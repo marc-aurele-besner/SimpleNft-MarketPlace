@@ -1,23 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
+
 import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string public constant NAME = "SimpleNft-MarketPlace";
-  string public constant VERSION = "0.0.1";
+  string public constant NAME = 'SimpleNft-MarketPlace';
+  string public constant VERSION = '0.0.1';
 
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
-    require(msg.sender == _listings[_listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
+    require(msg.sender == _listings[listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
     _;
   }
 
-  function name() external view returns (string memory) {
+  function initialize() external initializer {
+    __ValidateSignature_init(name(), version());
+  }
+
+  function name() public pure returns (string memory) {
     return NAME;
   }
 
-  function version() external view returns (string memory) {
+  function version() public pure returns (string memory) {
     return VERSION;
   }
 
@@ -26,7 +32,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   }
 
   function buyListing(uint256 listingId) external returns (bool success) {
-    _buyListing(listingId);
+    _buyListing(listingId, msg.sender);
   }
 
   function createListing(
@@ -34,38 +40,57 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     uint256 tokenId,
     uint256 salePrice,
     address seller,
-    uint8 r,
-    bytes32 s,
-    bytes32 v
+    uint8 v,
+    bytes32 r,
+    bytes32 s
   ) external returns (uint256 listingId) {
-    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), 'SimpleNftMarketplace: invalid signature');
+    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
-  function buyListing(uint256 listingId, address buyer, uint8 r, bytes32 s, bytes32 v) external returns (bool success) {
-    _buyListing(listingId, buyer)
+  function buyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) external returns (bool success) {
+    require(_verifyBuyListing(listingId, buyer, v, r, s), 'SimpleNftMarketplace: invalid signature');
+    return _buyListing(listingId, buyer);
   }
 
   // Moderator || Listing creator
-  function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(uint256 listingId) returns (bool success) {}
+  function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(listingId) returns (bool success) {
+    return false;
+  }
 
   // Admin
-  function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {}
+  function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
+    return false;
+  }
 
-  function changeTransactionFee(uint32 transactionFee) external onlyAdmin returns (bool success) {}
+  function changeTransactionFee(uint32 transactionFee) external onlyAdmin returns (bool success) {
+    return false;
+  }
 
   // Treasury
-  function withdrawTransactionFee() external onlyTreasury returns (bool success) {}
+  function withdrawTransactionFee() external onlyTreasury returns (bool success) {
+    return false;
+  }
 
   // Moderator
-  function blacklistToken(address tokenContract, uint256 tokenId) external onlyModerator returns (bool success) {}
+  function blacklistToken(address tokenContract, uint256 tokenId) external onlyModerator returns (bool success) {
+    return false;
+  }
 
-  function blacklistUser(address userAddress) external onlyModerator returns (bool success) {}
+  function blacklistUser(address userAddress) external onlyModerator returns (bool success) {
+    return false;
+  }
 
   // Read operation
 
-  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {}
+  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {
+    Listing storage listing = _listings[listingId];
+    return listing.salePrice;
+  }
 
-  function isListingActive(uint256 listingId) external view returns (bool isActive) {}
+  function isListingActive(uint256 listingId) external view returns (bool isActive) {
+    return _listings[listingId].buyer == address(0) && _listings[listingId].seller != address(0);
+  }
 
   function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {}
 
