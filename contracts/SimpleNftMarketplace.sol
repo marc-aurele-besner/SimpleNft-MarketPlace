@@ -92,9 +92,12 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     return _listings[listingId].buyer == address(0) && _listings[listingId].seller != address(0);
   }
 
-  function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {}
-
-  function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {}
+  function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {
+    return blacklistUser(userAddress);
+  }
+  function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {
+    return blacklistToken(tokenContract, tokenId);
+}
 
   function isSupportedContract(address tokenContract) external view returns (bool isSupported) {}
 
