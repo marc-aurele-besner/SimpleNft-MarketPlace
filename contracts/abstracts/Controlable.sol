@@ -72,6 +72,24 @@ abstract contract Controlable is AccessControlUpgradeable {
     success = true;
   }
 
+  function _isBlacklistedUser(address userAddress) internal returns (bool isBlacklisted) {
+    if (blacklistUser[userAddress] == true) {
+      return true;
+    }
+  }
+
+  function _isBlacklistedToken(address tokenContract, uint256 tokenId) internal returns (bool isBlacklisted) {
+    if (blacklistToken[tokenContract][tokenId] == true) {
+      return true;
+    }
+  }
+
+  function _isSupportedContract(address tokenContract) internal returns (bool isSupported) {
+    if (supportedContracts[tokenContract] == true) {
+      return true;
+    }
+  }
+
   function _blacklistUser(address userAddress, bool set) internal returns (bool success) {
     if (set == true) {
       blacklistUser[userAddress] = true;
@@ -86,6 +104,16 @@ abstract contract Controlable is AccessControlUpgradeable {
 
   function token() public view returns (address tokenAddress) {
     return address(_token);
+  }
+
+  function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
+    grantRole(MODERATOR_ROLE, account);
+    return true;
+  }
+
+  function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
+    grantRole(TREASURY_ROLE, account);
+    return true;
   }
 
   function isAdmin(address account) public view returns (bool) {

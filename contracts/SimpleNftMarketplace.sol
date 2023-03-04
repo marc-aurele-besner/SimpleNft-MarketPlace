@@ -60,25 +60,30 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
 
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
-    return false;
+    _changeSupportedContract(contractAddress);
+    return true;
   }
 
-  function changeTransactionFee(uint32 transactionFee) external onlyAdmin returns (bool success) {
-    return false;
+  function changeTransactionFee(uint32 newTransactionFee) external onlyAdmin returns (bool success) {
+    _changeTransactionFee(newTransactionFee);
+    return true;
   }
 
   // Treasury
   function withdrawTransactionFee() external onlyTreasury returns (bool success) {
-    return false;
+    _withdrawTransactionFee();
+    return true;
   }
 
   // Moderator
-  function blacklistToken(address tokenContract, uint256 tokenId) external onlyModerator returns (bool success) {
-    return false;
+  function blacklistToken(address tokenContract, uint256 tokenId, bool isBlackListed) external onlyModerator returns (bool success) {
+    _blacklistToken(tokenContract, tokenId, isBlackListed);
+    return true;
   }
 
-  function blacklistUser(address userAddress) external onlyModerator returns (bool success) {
-    return false;
+  function blacklistUser(address userAddress, bool set) external onlyModerator returns (bool success) {
+    _blacklistUser(userAddress, set);
+    return true;
   }
 
   // Read operation
@@ -92,11 +97,23 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     return _listings[listingId].buyer == address(0) && _listings[listingId].seller != address(0);
   }
 
-  function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {}
+  function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {
+    if (_isBlacklistedUser(userAddress) == true) {
+      return true;
+    }
+  }
 
-  function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {}
+  function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {
+    if (_isBlacklistedToken(tokenContract, tokenId) == true) {
+      return true;
+    }
+  }
 
-  function isSupportedContract(address tokenContract) external view returns (bool isSupported) {}
+  function isSupportedContract(address tokenContract) external view returns (bool isSupported) {
+    if (_isSupportedContract(tokenContract) == true) {
+      return true;
+    }
+  }
 
   function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
     return _calculateListingFee(listingId);
