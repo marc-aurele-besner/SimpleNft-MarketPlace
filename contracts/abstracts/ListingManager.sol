@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import './Controlable.sol';
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
+
 // IERC721ReceiverUpgradeable
 
 abstract contract ListingManager is Controlable {
@@ -74,11 +75,11 @@ abstract contract ListingManager is Controlable {
     emit Sale(listingId, buyer);
     return true;
   }
- 
+
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
     return _listings[listingId];
   }
-  
+
   function isSold(uint256 listingId) public view returns (bool) {
     if (_listings[listingId].buyTimestamp != 0) {
       return true;

@@ -16,7 +16,5 @@ jobs:
           version: nightly
       - name: NPM Install
         run: npm i
-      - name: Run Build TestData
-        run: npm run build
       - name: Run Forge Test
         run: forge test
