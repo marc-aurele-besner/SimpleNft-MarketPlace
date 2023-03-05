@@ -60,30 +60,25 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
 
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
-    _changeSupportedContract(contractAddress);
-    return true;
+    return _changeSupportedContract(contractAddress);
   }
 
   function changeTransactionFee(uint32 newTransactionFee) external onlyAdmin returns (bool success) {
-    _changeTransactionFee(newTransactionFee);
-    return true;
+    return _changeTransactionFee(newTransactionFee);
   }
 
   // Treasury
   function withdrawTransactionFee() external onlyTreasury returns (bool success) {
-    _withdrawTransactionFee();
-    return true;
+    return _withdrawTransactionFee();
   }
 
   // Moderator
   function blacklistToken(address tokenContract, uint256 tokenId, bool isBlackListed) external onlyModerator returns (bool success) {
-    _blacklistToken(tokenContract, tokenId, isBlackListed);
-    return true;
+    return _blacklistToken(tokenContract, tokenId, isBlackListed);
   }
 
   function blacklistUser(address userAddress, bool set) external onlyModerator returns (bool success) {
-    _blacklistUser(userAddress, set);
-    return true;
+    return _blacklistUser(userAddress, set);
   }
 
   // Read operation
@@ -98,21 +93,15 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   }
 
   function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {
-    if (_isBlacklistedUser(userAddress) == true) {
-      return true;
-    }
+    return (_isBlacklistedUser(userAddress) == true);
   }
 
   function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {
-    if (_isBlacklistedToken(tokenContract, tokenId) == true) {
-      return true;
-    }
+    return (_isBlacklistedToken(tokenContract, tokenId) == true);
   }
 
   function isSupportedContract(address tokenContract) external view returns (bool isSupported) {
-    if (_isSupportedContract(tokenContract) == true) {
-      return true;
-    }
+    return (_isSupportedContract(tokenContract) == true);
   }
 
   function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
