@@ -72,29 +72,29 @@ abstract contract Controlable is AccessControlUpgradeable {
     success = true;
   }
 
-  function _isBlacklistedUser(address userAddress) internal returns (bool isBlacklisted) {
-    if (blacklistUser[userAddress] == true) {
-      return true;
-    }
-  }
-
-  function _isBlacklistedToken(address tokenContract, uint256 tokenId) internal returns (bool isBlacklisted) {
-    if (blacklistToken[tokenContract][tokenId] == true) {
-      return true;
-    }
-  }
-
-  function _isSupportedContract(address tokenContract) internal returns (bool isSupported) {
-    if (supportedContracts[tokenContract] == true) {
-      return true;
-    }
-  }
-
   function _blacklistUser(address userAddress, bool set) internal returns (bool success) {
     if (set == true) {
       blacklistUser[userAddress] = true;
     } else {
       blacklistUser[userAddress] = false;
+    }
+  }
+
+  function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted) {
+    if (blacklistUser[userAddress] == true) {
+      return true;
+    }
+  }
+
+  function _isBlacklistedToken(address tokenContract, uint256 tokenId) internal view returns (bool isBlacklisted) {
+    if (blacklistToken[tokenContract][tokenId] == true) {
+      return true;
+    }
+  }
+
+  function _isSupportedContract(address tokenContract) internal view returns (bool isSupported) {
+    if (supportedContracts[tokenContract] == true) {
+      return true;
     }
   }
 

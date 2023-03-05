@@ -1,7 +1,5 @@
 const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const { expect } = require('chai');
-// const Help = require('./shared/setup');
 const Helper = require('./shared');
 
 describe('SimpleNftMarketplace', function () {
@@ -13,12 +11,8 @@ describe('SimpleNftMarketplace', function () {
     contract = await Helper.setupContract([user1.address, user2.address]);
   });
 
-  it.only('Does the isBlacklistUser function work without moderator access ? (should not be)', async function () {
-    expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(false);
-
-    await contract._blacklistUser(user1.address, true);
-
-    expect(await contract.blacklistUser(user1.address)).to.be.equal(Helper.CALLER_NOT_MODERATOR);
+  it('Does the blacklistUser function work without moderator access ? (should not be)', async function () {
+    await expect(contract.blacklistUser(user1.address, true)).to.be.revertedWith(Helper.errors.CALLER_NOT_MODERATOR);
   });
 });
 
