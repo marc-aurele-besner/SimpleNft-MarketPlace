@@ -25,6 +25,8 @@ abstract contract ListingManager is Controlable {
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
   event Sale(uint256 listingId, address buyer);
 
+  function __ListingManager_init() internal onlyInitializing {}
+
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
     uint256 fee = (_listings[listingId].salePrice * uint256(_transactionFee)) / BASE_TRANSACTION_FEE;
     return fee;

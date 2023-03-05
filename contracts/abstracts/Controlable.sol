@@ -21,6 +21,11 @@ abstract contract Controlable is AccessControlUpgradeable {
   event SupportedContractRemoved(address indexed contractAddress);
   event SupportedContractAdded(address indexed contractAddress);
 
+  function __Controlable_init() internal onlyInitializing {
+    __AccessControl_init();
+    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+  }
+
   modifier onlyAdmin() {
     require(isAdmin(msg.sender), 'Controlable: Only admin');
     _;
