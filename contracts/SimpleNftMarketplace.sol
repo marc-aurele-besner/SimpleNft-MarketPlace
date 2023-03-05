@@ -15,13 +15,12 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     _;
   }
 
-  function initialize() external initializer {
-    __ValidateSignature_init(name(), version());
+  function initialize(address treasury) external initializer {
+    __ValidateSignature_init(name(), version(), treasury);
   }
 
-  function __ValidateSignature_init(string memory name, string memory version) internal onlyInitializing {
-    __Controlable_init();
-    __ListingManager_init();
+  function __ValidateSignature_init(string memory name, string memory version, address treasury) internal onlyInitializing {
+    __ListingManager_init(treasury);
     __ValidateSignature_init(name, version);
   }
 
