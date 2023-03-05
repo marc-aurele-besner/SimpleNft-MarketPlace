@@ -23,7 +23,7 @@ abstract contract Controlable is AccessControlUpgradeable {
 
   function __Controlable_init() internal onlyInitializing {
     __AccessControl_init();
-    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
   }
 
   modifier onlyAdmin() {
