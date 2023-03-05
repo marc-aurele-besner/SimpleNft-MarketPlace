@@ -31,6 +31,9 @@ abstract contract ListingManager is Controlable {
   }
 
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
+    require(_isBlacklistedUser(seller) == false, 'User is blacklisted');
+    require(_isBlacklistedToken(tokenContract, tokenId) == false, 'Contract token is blacklisted');
+    require(_isSupportedContract(tokenContract) == true, 'Contract token is not supported');
     require(salePrice > 0, 'Sell price must be above zero');
 
     IERC721Upgradeable(tokenContract).safeTransferFrom(seller, address(this), tokenId);
