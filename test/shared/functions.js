@@ -42,9 +42,22 @@ const returnCurrentTimestamp = async () => {
   return block.timestamp;
 };
 
+const deployERC721 = async () => {
+  const MockERC721 = await ethers.getContractFactory('MockERC721');
+  mockERC721 = await MockERC721.deploy();
+  const MockERC721Instance = await mockERC721.deployed();
+  return MockERC721Instance;
+};
+
+const mintERC721 = async (_to, _tokenId) => {
+  contract.mint(_to, _tokenId);
+};
+
 module.exports = {
   sendRawTxn,
   checkRawTxnResult,
   getRandomInt,
-  returnCurrentTimestamp
+  returnCurrentTimestamp,
+  deployERC721,
+  mintERC721
 };

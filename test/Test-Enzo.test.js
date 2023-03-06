@@ -12,8 +12,28 @@ describe('SimpleNftMarketplace', function () {
   });
 
   it('Does the blacklistUser function work without moderator access ? (should not be)', async function () {
-    await expect(contract.blacklistUser(user1.address, true)).to.be.revertedWith(Helper.errors.CALLER_NOT_MODERATOR);
+    await expect(contract.connect(user1).blacklistUser(user2.address, true)).to.be.revertedWith(Helper.errors.CALLER_NOT_MODERATOR);
   });
+
+  it('Does the blacklistToken function work without moderator access ? (should not be)', async function () {
+    await Helper.deployERC721();
+    await Helper.mintERC721(user1.address, 1);
+
+    await expect(contract.connect(user1).blacklistToken(mockERC721.address, 0, true)).to.be.revertedWith(Helper.errors.CALLER_NOT_MODERATOR);
+  });
+
+  it('Does the blacklistUser function work with moderator access (blacklist and unBlacklist) ? (should be)', async function () {
+    await contract.blacklistUser(user1.address, true);
+    await expect(contract.isBlacklist(user1.address)).to.be.equal(true);
+
+    await contract.blacklistUser(user1.address, false);
+    await expect(contract.isBlacklist(user1.address)).to.be.equal(false);
+  });
+
+  it('Does it possible to change the transaction fees as the admin ? (Should be)', async function () {
+    const fees = await contract.transactionFee();
+    await expect(contract.)
+  })
 });
 
 /* Scenario test
