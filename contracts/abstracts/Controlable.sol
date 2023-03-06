@@ -99,4 +99,14 @@ abstract contract Controlable is AccessControlUpgradeable {
   function isModerator(address account) public view returns (bool) {
     return hasRole(MODERATOR_ROLE, account);
   }
+
+  function addRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
+    _grantRole(role, account);
+    return true;
+  }
+
+  function removeRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
+    _revokeRole(role, account);
+    return true;
+  }
 }
