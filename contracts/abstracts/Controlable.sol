@@ -87,12 +87,34 @@ abstract contract Controlable is AccessControlUpgradeable {
     }
   }
 
+  function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted) {
+    return blacklistUser[userAddress];
+  }
+
+  function _isBlacklistedToken(address tokenContract, uint256 tokenId) internal view returns (bool isBlacklisted) {
+    return blacklistToken[tokenContract][tokenId];
+  }
+
+  function _isSupportedContract(address tokenContract) internal view returns (bool isSupported) {
+    return supportedContracts[tokenContract];
+  }
+
   function transactionFee() public view returns (uint32) {
     return _transactionFee;
   }
 
   function token() public view returns (address tokenAddress) {
     return address(_token);
+  }
+
+  function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
+    grantRole(MODERATOR_ROLE, account);
+    return true;
+  }
+
+  function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
+    grantRole(TREASURY_ROLE, account);
+    return true;
   }
 
   function isAdmin(address account) public view returns (bool) {

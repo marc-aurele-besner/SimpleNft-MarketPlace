@@ -1,31 +1,22 @@
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
-const { expect } = require("chai");
+const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { expect } = require('chai');
+const Helper = require('./shared');
 
-describe("SimpleNftMarketplace", function () {
-  async function deployOneYearLockFixture() {
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
-
-    const SimpleNftMarketplace = await ethers.getContractFactory(
-      "SimpleNftMarketplace"
-    );
-    const simpleNftMarketplace = await SimpleNftMarketplace.deploy();
-
-    return { simpleNftMarketplace, owner, otherAccount };
-  }
-
-  describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { simpleNftMarketplace, owner, otherAccount } = await loadFixture(
-        deployOneYearLockFixture
-      );
-
-      expect(true).to.be.true;
-    });
+describe('SimpleNftMarketplace', function () {
+  before(async function () {
+    [provider, owner, user1, user2, user3] = await Helper.setupProviderAndAccount();
   });
 
-  /* Scenario test
+  beforeEach(async function () {
+    contract = await Helper.setupContract([user1.address, user2.address]);
+  });
+
+  it('Does the blacklistUser function work without moderator access ? (should not be)', async function () {
+    await expect(contract.blacklistUser(user1.address, true)).to.be.revertedWith(Helper.errors.CALLER_NOT_MODERATOR);
+  });
+});
+
+/* Scenario test
 
     - Est-il possible de changer les frais de transaction en étant l'admin (Should be)
     - Est-il possible de changer les frais de transaction en étant pas admin (Should not be)
@@ -42,4 +33,3 @@ describe("SimpleNftMarketplace", function () {
     - Est-il possible créer un listing, en tant que modérateur (étant informé que cet user à volé le token) de cancel le listing, de blacklist le token, de blacklist le user et de vérifier si les blacklists ont bien fonctionné ? (should be)
 
   */
-});
