@@ -50,7 +50,7 @@ const deployERC721 = async () => {
 };
 
 const mintERC721 = async (_to, _tokenId) => {
-  contract.mint(_to, _tokenId);
+  mockERC721.mint(_to, _tokenId);
 };
 
 module.exports = {
