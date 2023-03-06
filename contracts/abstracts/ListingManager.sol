@@ -44,15 +44,11 @@ abstract contract ListingManager is Controlable {
     emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
   }
 
-// pour éditer le prix nous avons besoin du token ID , que le message sender soit le propriétaire du token, 
-//que le mint soit différent de 0, que le token soit déja minté
-// que le sale price != du nouveau sale price 
   function _editListingPrice(uint256 listingId, uint256 newSalePrice) internal returns (bool success) {
     require(_listings[listingId].salePrice == 0, 'NFT minted');
     require (_listings[listingId].seller == msg.sender, 'Message Sender is not the seller');
     require (_listingId.isListingActive == true, 'Listing not active');
 
-    
     emit ListingPriceChanged(listingId, newSalePrice);
     return true;  
 }
