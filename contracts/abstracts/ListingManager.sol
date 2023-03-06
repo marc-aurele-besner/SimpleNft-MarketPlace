@@ -24,6 +24,7 @@ abstract contract ListingManager is Controlable {
 
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
   event Sale(uint256 listingId, address buyer);
+  event ListingPriceChanged(uint256 listingId, uint256 newSalePrice);
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
     uint256 fee = (_listings[listingId].salePrice * uint256(_transactionFee)) / BASE_TRANSACTION_FEE;
@@ -43,6 +44,14 @@ abstract contract ListingManager is Controlable {
     emit ListingCreated(listingId, tokenContract, tokenId, salePrice, seller);
   }
 
+  function _editListingPrice(uint256 listingId, uint256 newSalePrice) internal returns (bool success) {
+    require(_listings[listingId].salePrice == 0, 'NFT minted');
+    require (_listings[listingId].seller == msg.sender, 'Message Sender is not the seller');
+    // require (_listingId.isListingActive == true, 'Listing not active');
+
+    emit ListingPriceChanged(listingId, newSalePrice);
+    return true;  
+}
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     Listing memory listing = _listings[listingId];
     require(listing.buyTimestamp == 0, 'Listing already sold');
