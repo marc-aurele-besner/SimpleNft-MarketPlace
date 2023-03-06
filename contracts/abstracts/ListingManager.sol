@@ -82,4 +82,17 @@ abstract contract ListingManager is Controlable {
     }
     return false;
   }
-}
+  function cancelListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (bool success) {
+    require(msg.sender == seller, "caller is not the seller");
+    
+    if (_listings[listingId].salePrice == 0) {
+       _listings(tokenContract).transferFrom(address(this), seller, tokenId);
+    
+    emit ListingCancelled(tokenContract, tokenId, salePrice, seller);
+
+    delete _listings[listingId];
+
+    return true;
+    }
+  }
+} 
