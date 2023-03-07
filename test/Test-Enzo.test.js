@@ -8,7 +8,7 @@ describe('Test-Enzo', function () {
   });
 
   beforeEach(async function () {
-    contract = await Helper.setupContract([user1.address, user2.address]);
+    contract = await Helper.setupContract();
   });
 
   it('Does the blacklistUser function work without moderator access ? (should not be)', async function () {
@@ -61,14 +61,20 @@ describe('Test-Enzo', function () {
     await expect(newFees).to.be.equal(0);
   });
 
-  // it('Does it possible to create a listing ? (Should be)', async function () {
-  //   await Helper.deployERC721();
-  //   await Helper.mintERC721(user1.address, 1);
+  it.only('Does it possible to create a listing and return detail of it ? (Should be)', async function () {
+    await Helper.deployERC721();
+    await Helper.mintERC721(user1.address, 1);
+    await contract.connect(user1).createListing(mockERC721.address, 0, 100);
 
-  //   expect(await contract.connect(user1).createListing(mockERC721.address, 0, 100)).to.be.equal(0);
-  //   const listing = await contract.getListingDetail(0);
-  //   console.log('listing', listing);
-  // });
+    const details = await simpleNftMarketplace.getListingDetail(0);
+    expect(details.tokenContract).to.be.equal(mockERC721.address);
+    expect(details.tokenId).to.be.equal(0);
+    expect(details.salePrice).to.be.equal(100);
+    expect(details.seller).to.be.equal(user1.address);
+    expect(details.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
+    // expect(details.listingTimestamp).to.be.equal(ethers.BigNumber.from(0));
+    expect(details.buyTimestamp).to.be.equal(ethers.BigNumber.from(0));
+  });
 });
 
 /* Scenario test
