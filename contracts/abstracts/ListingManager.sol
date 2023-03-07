@@ -5,9 +5,9 @@ import './Controlable.sol';
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 
-// IERC721ReceiverUpgradeable
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 
-abstract contract ListingManager is Controlable {
+abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   struct Listing {
     address tokenContract;
     uint tokenId;
@@ -27,6 +27,10 @@ abstract contract ListingManager is Controlable {
 
   function __ListingManager_init(address treasury) internal onlyInitializing {
     __Controlable_init(treasury);
+  }
+
+  function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    return this.onERC721Received.selector;
   }
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
