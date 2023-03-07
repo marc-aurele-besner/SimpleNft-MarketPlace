@@ -11,6 +11,7 @@ const setupContract = async () => {
   // Deploy contracts
   const contract = await ContractFactory.deploy();
   const contractInstance = await contract.deployed();
+  await contract.initialize(owner.address);
 
   return contractInstance;
 };
