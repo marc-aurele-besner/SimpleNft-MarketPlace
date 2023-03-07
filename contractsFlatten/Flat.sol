@@ -4425,6 +4425,13 @@ abstract contract Controlable is AccessControlUpgradeable {
   event SupportedContractRemoved(address indexed contractAddress);
   event SupportedContractAdded(address indexed contractAddress);
 
+  function __Controlable_init(address treasury) internal onlyInitializing {
+    __AccessControl_init();
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+    _setupRole(MODERATOR_ROLE, _msgSender());
+    _setupRole(TREASURY_ROLE, treasury);
+  }
+
   modifier onlyAdmin() {
     require(isAdmin(msg.sender), 'Controlable: Only admin');
     _;
@@ -4484,12 +4491,34 @@ abstract contract Controlable is AccessControlUpgradeable {
     }
   }
 
+  function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted) {
+    return blacklistUser[userAddress];
+  }
+
+  function _isBlacklistedToken(address tokenContract, uint256 tokenId) internal view returns (bool isBlacklisted) {
+    return blacklistToken[tokenContract][tokenId];
+  }
+
+  function _isSupportedContract(address tokenContract) internal view returns (bool isSupported) {
+    return supportedContracts[tokenContract];
+  }
+
   function transactionFee() public view returns (uint32) {
     return _transactionFee;
   }
 
   function token() public view returns (address tokenAddress) {
     return address(_token);
+  }
+
+  function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
+    grantRole(MODERATOR_ROLE, account);
+    return true;
+  }
+
+  function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
+    grantRole(TREASURY_ROLE, account);
+    return true;
   }
 
   function isAdmin(address account) public view returns (bool) {
@@ -4502,6 +4531,16 @@ abstract contract Controlable is AccessControlUpgradeable {
 
   function isModerator(address account) public view returns (bool) {
     return hasRole(MODERATOR_ROLE, account);
+  }
+
+  function addRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
+    _grantRole(role, account);
+    return true;
+  }
+
+  function removeRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
+    _revokeRole(role, account);
+    return true;
   }
 }
 
@@ -4531,13 +4570,20 @@ abstract contract ListingManager is Controlable {
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
   event Sale(uint256 listingId, address buyer);
 
+  function __ListingManager_init(address treasury) internal onlyInitializing {
+    __Controlable_init(treasury);
+  }
+
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
     uint256 fee = (_listings[listingId].salePrice * uint256(_transactionFee)) / BASE_TRANSACTION_FEE;
     return fee;
   }
 
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
-    require(salePrice > 0, 'Sell price must be above zero');
+    require(!_isBlacklistedUser(seller), 'ListingManager: User is blacklisted');
+    require(!_isBlacklistedToken(tokenContract, tokenId), 'ListingManager: Contract token is blacklisted');
+    require(!_isSupportedContract(tokenContract), 'ListingManager: Contract token is not supported');
+    require(salePrice > 0, 'ListingManager: Sell price must be above zero');
 
     IERC721Upgradeable(tokenContract).safeTransferFrom(seller, address(this), tokenId);
 
@@ -4551,7 +4597,7 @@ abstract contract ListingManager is Controlable {
 
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     Listing memory listing = _listings[listingId];
-    require(listing.buyTimestamp == 0, 'Listing already sold');
+    require(listing.buyTimestamp == 0, 'ListingManager: Listing already sold');
 
     uint256 listingFee = _calculateListingFee(listingId);
     uint256 amount = listing.salePrice - listingFee;
@@ -4568,11 +4614,11 @@ abstract contract ListingManager is Controlable {
     emit Sale(listingId, buyer);
     return true;
   }
- 
+
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
     return _listings[listingId];
   }
-  
+
   function isSold(uint256 listingId) public view returns (bool) {
     if (_listings[listingId].buyTimestamp != 0) {
       return true;
@@ -4588,89 +4634,14 @@ abstract contract ListingManager is Controlable {
 pragma solidity ^0.8.19;
 
 abstract contract ValidateSignature is EIP712Upgradeable {
+  bytes32 private constant _CREATE_LISTING_TYPEHASH = keccak256('CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)');
+  bytes32 private constant _BUY_LISTING_TYPEHASH = keccak256('BuyListing(uint256 listingId,address buyer)');
 
-    bytes32 private constant _CREATE_LISTING_TYPEHASH =
-        keccak256("CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)");
-    bytes32 private constant _BUY_LISTING_TYPEHASH =
-        keccak256("BuyListing(uint256 listingId,address buyer)");
-
-    function __ValidateSignature_init(string memory name, string memory version) internal onlyInitializing {
-        __EIP712_init(name, version);
-    }
-
-
-    function _verifyCreateListing(
-        address tokenContract,
-        uint256 tokenId,
-        uint256 salePrice,
-        address seller,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) internal view returns (bool success) {
-        bytes32 structHash = keccak256(abi.encode(_CREATE_LISTING_TYPEHASH, tokenContract, tokenId, salePrice, seller));
-
-        bytes32 hash = _hashTypedDataV4(structHash);
-
-        address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-        require(signer == seller, "ValidateSignature: invalid signature");
-
-        return true;
-    }
-
-    function _verifyBuyListing(uint256 listingId, address buyer, 
-        uint8 v,
-        bytes32 r,
-        bytes32 s) internal view returns (bool success) {
-
-        bytes32 structHash = keccak256(abi.encode(_BUY_LISTING_TYPEHASH, listingId, buyer));
-
-        bytes32 hash = _hashTypedDataV4(structHash);
-
-        address signer = ECDSAUpgradeable.recover(hash, v, r, s);
-        require(signer == buyer, "ValidateSignature: invalid signature");
-        
-        return true;
-    }
-}
-
-
-// File contracts/SimpleNftMarketplace.sol
-
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-
-contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string public constant NAME = "SimpleNft-MarketPlace";
-  string public constant VERSION = "0.0.1";
-
-  modifier onlyListingOwnerOrModerator(uint256 listingId) {
-    require(msg.sender == _listings[listingId].seller || isModerator(msg.sender), 'Only listing owner or moderator');
-    _;
+  function __ValidateSignature_init(string memory name, string memory version) internal onlyInitializing {
+    __EIP712_init(name, version);
   }
 
-  function initialize() external initializer {
-    __ValidateSignature_init(name(), version());
-  }
-
-  function name() public pure returns (string memory) {
-    return NAME;
-  }
-
-  function version() public pure returns (string memory) {
-    return VERSION;
-  }
-
-  function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
-    _createListing(tokenContract, tokenId, salePrice, msg.sender);
-  }
-
-  function buyListing(uint256 listingId) external returns (bool success) {
-    _buyListing(listingId, msg.sender);
-  }
-
-  function createListing(
+  function _verifyCreateListing(
     address tokenContract,
     uint256 tokenId,
     uint256 salePrice,
@@ -4678,66 +4649,31 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     uint8 v,
     bytes32 r,
     bytes32 s
-  ) external returns (uint256 listingId) {
-    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), "SimpleNftMarketplace: invalid signature");
-    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
+  ) internal view returns (bool success) {
+    bytes32 structHash = keccak256(abi.encode(_CREATE_LISTING_TYPEHASH, tokenContract, tokenId, salePrice, seller));
+
+    bytes32 hash = _hashTypedDataV4(structHash);
+
+    address signer = ECDSAUpgradeable.recover(hash, v, r, s);
+    require(signer == seller, 'ValidateSignature: invalid signature');
+
+    return true;
   }
 
-  function buyListing(uint256 listingId, address buyer, 
-    uint8 v,
-    bytes32 r,
-    bytes32 s) external returns (bool success) {
-    require(_verifyBuyListing(listingId, buyer, v, r, s), "SimpleNftMarketplace: invalid signature");
-    return _buyListing(listingId, buyer);
-  }
+  function _verifyBuyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success) {
+    bytes32 structHash = keccak256(abi.encode(_BUY_LISTING_TYPEHASH, listingId, buyer));
 
-  // Moderator || Listing creator
-  function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(listingId) returns (bool success) {
-    return false;
-  }
+    bytes32 hash = _hashTypedDataV4(structHash);
 
-  // Admin
-  function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
-    return false;
-  }
+    address signer = ECDSAUpgradeable.recover(hash, v, r, s);
+    require(signer == buyer, 'ValidateSignature: invalid signature');
 
-  function changeTransactionFee(uint32 transactionFee) external onlyAdmin returns (bool success) {
-    return false;
-  }
-
-  // Treasury
-  function withdrawTransactionFee() external onlyTreasury returns (bool success) {
-    return false;
-  }
-
-  // Moderator
-  function blacklistToken(address tokenContract, uint256 tokenId) external onlyModerator returns (bool success) {
-    return false;
-  }
-
-  function blacklistUser(address userAddress) external onlyModerator returns (bool success) {
-    return false;
-  }
-
-  // Read operation
-
-  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {}
-
-  function isListingActive(uint256 listingId) external view returns (bool isActive) {}
-
-  function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {}
-
-  function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {}
-
-  function isSupportedContract(address tokenContract) external view returns (bool isSupported) {}
-
-  function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
-    return _calculateListingFee(listingId);
+    return true;
   }
 }
 
 
-// File contracts/test/mocks/MockERC20.sol
+// File contracts/mocks/MockERC20.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
@@ -4767,7 +4703,7 @@ contract MockERC20 is ERC20 {
 }
 
 
-// File contracts/test/mocks/MockERC721.sol
+// File contracts/mocks/MockERC721.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
@@ -4792,7 +4728,7 @@ contract MockERC721 is ERC721 {
 }
 
 
-// File contracts/test/mocks/MockERC721Upgradeable.sol
+// File contracts/mocks/MockERC721Upgradeable.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
@@ -4826,6 +4762,117 @@ contract MockERC721Upgradeable is ERC721Upgradeable {
   }
 
   uint256[50] private __gap;
+}
+
+
+// File contracts/SimpleNftMarketplace.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+
+contract SimpleNftMarketplace is ListingManager, ValidateSignature {
+  string public constant NAME = 'SimpleNft-MarketPlace';
+  string public constant VERSION = '0.0.1';
+
+  modifier onlyListingOwnerOrModerator(uint256 listingId) {
+    require(msg.sender == _listings[listingId].seller || isModerator(msg.sender), 'SimpleNftMarketplace: Only listing owner or moderator');
+    _;
+  }
+
+  function initialize(address treasury) external initializer {
+    __ValidateSignature_init(name(), version());
+    __ListingManager_init(treasury);
+  }
+
+  function name() public pure returns (string memory) {
+    return NAME;
+  }
+
+  function version() public pure returns (string memory) {
+    return VERSION;
+  }
+
+  function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
+    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+  }
+
+  function buyListing(uint256 listingId) external returns (bool success) {
+    _buyListing(listingId, msg.sender);
+  }
+
+  function createListing(
+    address tokenContract,
+    uint256 tokenId,
+    uint256 salePrice,
+    address seller,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) external returns (uint256 listingId) {
+    require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), 'SimpleNftMarketplace: invalid signature');
+    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
+  }
+
+  function buyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) external returns (bool success) {
+    require(_verifyBuyListing(listingId, buyer, v, r, s), 'SimpleNftMarketplace: invalid signature');
+    return _buyListing(listingId, buyer);
+  }
+
+  // Moderator || Listing creator
+  function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(listingId) returns (bool success) {
+    return false;
+  }
+
+  // Admin
+  function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
+    return _changeSupportedContract(contractAddress);
+  }
+
+  function changeTransactionFee(uint32 newTransactionFee) external onlyAdmin returns (bool success) {
+    return _changeTransactionFee(newTransactionFee);
+  }
+
+  // Treasury
+  function withdrawTransactionFee() external onlyTreasury returns (bool success) {
+    return _withdrawTransactionFee();
+  }
+
+  // Moderator
+  function blacklistToken(address tokenContract, uint256 tokenId, bool isBlackListed) external onlyModerator returns (bool success) {
+    return _blacklistToken(tokenContract, tokenId, isBlackListed);
+  }
+
+  function blacklistUser(address userAddress, bool set) external onlyModerator returns (bool success) {
+    return _blacklistUser(userAddress, set);
+  }
+
+  // Read operation
+
+  function listingPrice(uint256 listingId) external view returns (uint256 listingPrice) {
+    Listing storage listing = _listings[listingId];
+    return listing.salePrice;
+  }
+
+  function isListingActive(uint256 listingId) external view returns (bool isActive) {
+    return _listings[listingId].buyer == address(0) && _listings[listingId].seller != address(0);
+  }
+
+  function isBlacklistedUser(address userAddress) external view returns (bool isBlacklisted) {
+    return _isBlacklistedUser(userAddress);
+  }
+
+  function isBlacklistedToken(address tokenContract, uint256 tokenId) external view returns (bool isBlacklisted) {
+    return _isBlacklistedToken(tokenContract, tokenId);
+  }
+
+  function isSupportedContract(address tokenContract) external view returns (bool isSupported) {
+    return _isSupportedContract(tokenContract);
+  }
+
+  function calculateListingFee(uint256 listingId) external view returns (uint256 amount) {
+    return _calculateListingFee(listingId);
+  }
 }
 
 
