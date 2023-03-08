@@ -115,7 +115,7 @@ describe('Test-Enzo', function () {
   });
 
   it.only('Is it possible to create a listing and buy this listing ? (should be)', async function () {
-    await Helper.createAListing(user1, 1);
+    await Helper.createAListing(user1, 1, 100);
 
     const details = await contract.getListingDetail(0);
     expect(details.tokenContract).to.be.equal(mockERC721.address);
