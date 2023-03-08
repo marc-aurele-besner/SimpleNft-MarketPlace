@@ -58,6 +58,15 @@ const approveERC721 = async (contract, sender, _hasApprove, _tokenId, error) => 
   await checkRawTxnResult(input, sender, error);
 };
 
+const createAListing = async (sender, _tokenId) => {
+  const mockERC721 = await deployERC721();
+  await mintERC721(mockERC721, sender.address, _tokenId);
+  await approveERC721(mockERC721, sender, contract.address, _tokenId);
+
+  await contract.changeSupportedContract(mockERC721.address, true);
+  await contract.connect(sender)['createListing(address,uint256,uint256)'](mockERC721.address, _tokenId, 100);
+};
+
 module.exports = {
   sendRawTxn,
   checkRawTxnResult,
@@ -65,5 +74,6 @@ module.exports = {
   returnCurrentTimestamp,
   deployERC721,
   mintERC721,
-  approveERC721
+  approveERC721,
+  createAListing
 };

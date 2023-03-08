@@ -105,12 +105,12 @@ abstract contract Controlable is AccessControlUpgradeable {
   }
 
   function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
-    grantRole(MODERATOR_ROLE, account);
+    _grantRole(MODERATOR_ROLE, account);
     return true;
   }
 
   function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
-    grantRole(TREASURY_ROLE, account);
+    _grantRole(TREASURY_ROLE, account);
     return true;
   }
 
@@ -126,13 +126,13 @@ abstract contract Controlable is AccessControlUpgradeable {
     return hasRole(MODERATOR_ROLE, account);
   }
 
-  function addRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
-    _grantRole(role, account);
+  function addRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
+    grantRole(role, account);
     return true;
   }
 
-  function removeRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
-    _revokeRole(role, account);
+  function removeRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
+    revokeRole(role, account);
     return true;
   }
 }

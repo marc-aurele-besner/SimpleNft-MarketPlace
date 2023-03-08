@@ -70,7 +70,7 @@ describe('Test-Enzo', function () {
     );
   });
 
-  it('Does it possible to create a listing ( with contractSupported ) and return detail of it ? (Should be)', async function () {
+  it('it is possible to create a listing ( with contractSupported ) and return detail of it ? (Should be)', async function () {
     const mockERC721 = await Helper.deployERC721();
     await Helper.mintERC721(mockERC721, user1.address, 1);
     await Helper.approveERC721(mockERC721, user1, contract.address, 1);
@@ -78,6 +78,44 @@ describe('Test-Enzo', function () {
     await contract.changeSupportedContract(mockERC721.address, true);
     expect(await contract.isSupportedContract(mockERC721.address)).to.be.equal(true);
     await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100);
+
+    const details = await contract.getListingDetail(0);
+    expect(details.tokenContract).to.be.equal(mockERC721.address);
+    expect(details.tokenId).to.be.equal(1);
+    expect(details.salePrice).to.be.equal(100);
+    expect(details.seller).to.be.equal(user1.address);
+    expect(details.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
+    // expect(details.listingTimestamp).to.be.equal(ethers.BigNumber.from(0));
+    expect(details.buyTimestamp).to.be.equal(ethers.BigNumber.from(0));
+  });
+
+  it('does the onlyModerator modifier and the giveModeratorAccess function work ? (Should be)', async function () {
+    expect(await contract.isModerator(user1.address)).to.be.equal(false);
+    // Problème avec l'argument MODERATOR_ROLE
+    expect(await contract.addRole(MODERATOR_ROLE, user1.address)).to.be.equal(true);
+    expect(await contract.isModerator(user1.address)).to.be.equal(true);
+    expect(await contract.connect(user1).blacklistUser(user2.address, true)).to.be.equal(true);
+    expect(await contract.isBlacklistedUser(user2.address)).to.be.equal(true);
+  });
+
+  it('It is possible to be blacklist and to list a NFT ? (Should not be)', async function () {
+    const mockERC721 = await Helper.deployERC721();
+    await Helper.mintERC721(mockERC721, user1.address, 1);
+    await Helper.approveERC721(mockERC721, user1, contract.address, 1);
+
+    await contract.changeSupportedContract(mockERC721.address, true);
+    expect(await contract.isSupportedContract(mockERC721.address)).to.be.equal(true);
+
+    await contract.blacklistUser(user1.address, true);
+    expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(true);
+
+    await expect(contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100)).to.be.revertedWith(
+      Helper.errors.USER_BLACKLISTED
+    );
+  });
+
+  it.only('Is it possible to create a listing and buy this listing ? (should be)', async function () {
+    await Helper.createAListing(user1, 1);
 
     const details = await contract.getListingDetail(0);
     expect(details.tokenContract).to.be.equal(mockERC721.address);
