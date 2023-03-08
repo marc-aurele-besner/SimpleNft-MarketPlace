@@ -1,19 +1,24 @@
-const { network } = require('hardhat');
+const { network, upgrades } = require('hardhat');
 
 const constants = require('../../constants');
 
 console.log('\x1b[34m', `${constants.FIGLET_NAME}\n`, '\x1b[32m', 'Connected to network: ', '\x1b[33m', network.name, '\x1b[0m');
 
-const setupContract = async () => {
+const setupContract = async (isProxy) => {
   // Get contract artifacts
   const ContractFactory = await ethers.getContractFactory(constants.CONTRACT_NAME);
 
-  // Deploy contracts
-  const contract = await ContractFactory.deploy();
-  const contractInstance = await contract.deployed();
-  await contract.initialize(owner.address);
+  // Deploy as proxy
+  let contract;
+  if (isProxy) contract = await upgrades.deployProxy(ContractFactory, [owner.address], { initializer: 'initialize(address)' });
+  else {
+    // Deploy contracts
+    contract = await ContractFactory.deploy();
+    await contract.initialize(owner.address);
+    await contract.deployed();
+  }
 
-  return contractInstance;
+  return contract;
 };
 
 const setupProviderAndAccount = async () => {

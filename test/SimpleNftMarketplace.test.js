@@ -47,7 +47,7 @@ describe("SimpleNftMarketplace", function () {
     });
   
     beforeEach(async function () {
-      contract = await Helper.setupContract([user1.address, user2.address]);
+      contract = await Helper.setupContract(true);
     });
 
     it("Should return default value when calling getListingDetail", async function () {
@@ -63,6 +63,16 @@ describe("SimpleNftMarketplace", function () {
       //  await contract['createListing(address,uint256,uint256)']();
       // await contract['createListing(address,uint256,uint256,address,uint8,bytes32,bytes32)'](mockERC20.address, 1, 100, owner.address, signature.v, signature.r, signature.s);
       // console.log('signature', signature);
+    });
+
+    it("Should return MODERATOR_ROLE()", async function () {
+      const { simpleNftMarketplace, owner, otherAccount } = await loadFixture(deployOneYearLockFixture);
+
+      const AdminRole = await simpleNftMarketplace.MODERATOR_ROLE();
+
+      console.log('AdminRole', AdminRole);
+
+      
     });
   });
 });

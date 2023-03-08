@@ -7,7 +7,7 @@ import './abstracts/ListingManager.sol';
 import './abstracts/ValidateSignature.sol';
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string public constant NAME = 'SimpleNft-MarketPlace';
+  string public constant NAME = 'SimpleNftMarketplace';
   string public constant VERSION = '0.0.1';
 
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
