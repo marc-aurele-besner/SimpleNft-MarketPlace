@@ -49,8 +49,8 @@ const deployERC721 = async () => {
   return MockERC721Instance;
 };
 
-const mintERC721 = async (_to, _tokenId) => {
-  await mockERC721.mint(_to, _tokenId);
+const mintERC721 = async (contract, _to, _tokenId) => {
+  await contract.mint(_to, _tokenId);
 };
 
 const approveERC721 = async (contract, sender, _hasApprove, _tokenId, error) => {
