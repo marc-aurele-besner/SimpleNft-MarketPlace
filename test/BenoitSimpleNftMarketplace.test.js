@@ -12,11 +12,13 @@ describe('Test-Benoit', function () {
         contract = await Helper.setupContract()
     })
     it.only("does it return the correct listing price (should be)", async function () {
-        await Helper.deployERC721();
-        await Helper.mintERC721(user1.address, 1);
-        await mockERC721.connect(user1).approve(contract.address, 1);
+        const mockERC721 = await Helper.deployERC721();
+        await Helper.mintERC721(mockERC721, user1.address, 1);
+        await Helper.approveERC721(mockERC721, user1, contract.address, 1);
+        await contract.changeSupportedContract(mockERC721.address, true)
+        expect(await contract.isSupportedContract(mockERC721.address)).to.be.equal(true) 
         await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100);
-        expect(await contract.listingPrice(1)).to.be.equal(100)
+        expect(await contract.listingPrice(0)).to.be.equal(100)
     });
 })  
 
