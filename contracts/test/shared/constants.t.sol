@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 contract Constants {
   // Constants value specific to the contracts we are testing.
-  string constant CONTRACT_NAME = 'SimpleNft-MarketPlace';
+  string constant CONTRACT_NAME = 'SimpleNftMarketplace';
   string constant CONTRACT_VERSION = '0.0.1';
 
   address ADMIN = address(42_000);
