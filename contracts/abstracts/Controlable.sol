@@ -44,11 +44,10 @@ abstract contract Controlable is AccessControlUpgradeable {
   }
 
   function _changeSupportedContract(address contractAddress, bool isSupported) internal returns (bool success) {
-    if (isSupported == true) {
-      supportedContracts[contractAddress] = true;
+    supportedContracts[contractAddress] = isSupported;
+    if (isSupported) {
       emit SupportedContractAdded(contractAddress);
     } else {
-      supportedContracts[contractAddress] = false;
       emit SupportedContractRemoved(contractAddress);
     }
     return true;

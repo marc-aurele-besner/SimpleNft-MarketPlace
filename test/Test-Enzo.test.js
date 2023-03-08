@@ -16,7 +16,7 @@ describe('Test-Enzo', function () {
   });
 
   it('Does the blacklistToken function work without moderator access ? (should not be)', async function () {
-    await Helper.deployERC721();
+    const mockERC721 = await Helper.deployERC721();
     await Helper.mintERC721(mockERC721, user1.address, 1);
 
     await expect(contract.connect(user1).blacklistToken(mockERC721.address, 0, true)).to.be.revertedWith(Helper.errors.CALLER_NOT_MODERATOR);
@@ -31,7 +31,7 @@ describe('Test-Enzo', function () {
   });
 
   it('Does the blacklistToken function work with moderator access (blacklist and unBlacklist) ? (should be)', async function () {
-    await Helper.deployERC721();
+    const mockERC721 = await Helper.deployERC721();
     await Helper.mintERC721(mockERC721, user1.address, 1);
 
     await contract.blacklistToken(mockERC721.address, 0, true);
@@ -62,7 +62,7 @@ describe('Test-Enzo', function () {
   });
 
   it('Does it possible to create a listing where the contractAddress is not supported ? (Should not be)', async function () {
-    await Helper.deployERC721();
+    const mockERC721 = await Helper.deployERC721();
     await Helper.mintERC721(mockERC721, user1.address, 1);
     await Helper.approveERC721(mockERC721, user1, contract.address, 1);
     await expect(contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100)).to.be.revertedWith(
@@ -71,7 +71,7 @@ describe('Test-Enzo', function () {
   });
 
   it('Does it possible to create a listing ( with contractSupported ) and return detail of it ? (Should be)', async function () {
-    await Helper.deployERC721();
+    const mockERC721 = await Helper.deployERC721();
     await Helper.mintERC721(mockERC721, user1.address, 1);
     await Helper.approveERC721(mockERC721, user1, contract.address, 1);
 
