@@ -21,7 +21,7 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   }
 
   uint32 public constant BASE_TRANSACTION_FEE = 100_000;
-  uint256 private _listingId = 0;
+  uint256 private _listingId;
   mapping(uint256 => Listing) internal _listings;
 
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
