@@ -43,15 +43,12 @@ abstract contract Controlable is AccessControlUpgradeable {
     _;
   }
 
-  function _changeSupportedContract(address contractAddress) internal onlyAdmin returns (bool success) {
-    if (supportedContracts[contractAddress]) {
-      // Le contrat est déjà pris en charge, donc on le supprime
-      supportedContracts[contractAddress] = false;
-      emit SupportedContractRemoved(contractAddress);
-    } else {
-      // Le contrat n'est pas pris en charge, donc on l'ajoute
-      supportedContracts[contractAddress] = true;
+  function _changeSupportedContract(address contractAddress, bool isSupported) internal returns (bool success) {
+    supportedContracts[contractAddress] = isSupported;
+    if (isSupported) {
       emit SupportedContractAdded(contractAddress);
+    } else {
+      emit SupportedContractRemoved(contractAddress);
     }
     return true;
   }

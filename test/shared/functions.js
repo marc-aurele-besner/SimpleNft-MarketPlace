@@ -49,8 +49,13 @@ const deployERC721 = async () => {
   return MockERC721Instance;
 };
 
-const mintERC721 = async (_to, _tokenId) => {
-  mockERC721.mint(_to, _tokenId);
+const mintERC721 = async (contract, _to, _tokenId) => {
+  await contract.mint(_to, _tokenId);
+};
+
+const approveERC721 = async (contract, sender, _hasApprove, _tokenId, error) => {
+  const input = await contract.connect(sender).approve(_hasApprove, _tokenId);
+  await checkRawTxnResult(input, sender, error);
 };
 
 module.exports = {
@@ -59,5 +64,6 @@ module.exports = {
   getRandomInt,
   returnCurrentTimestamp,
   deployERC721,
-  mintERC721
+  mintERC721,
+  approveERC721
 };

@@ -61,7 +61,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
 
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
-    return _changeSupportedContract(contractAddress);
+    return _changeSupportedContract(contractAddress, isSupported);
   }
 
   function changeTransactionFee(uint32 newTransactionFee) external onlyAdmin returns (bool success) {
