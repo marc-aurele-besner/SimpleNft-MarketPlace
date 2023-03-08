@@ -78,7 +78,7 @@ const mintERC20 = async (contract, _to, _amount) => {
   await contract.mint(_to, _amount);
 };
 
-const deployAndMintERC20 = async (_to, _amount) => {
+const deployAndMintERC20 = async (_sender, _amount) => {
   const mockERC20 = await deployERC20();
   mintERC20(mockERC20, _sender, _amount);
 };

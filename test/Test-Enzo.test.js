@@ -125,6 +125,10 @@ describe('Test-Enzo', function () {
     expect(details.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
     // expect(details.listingTimestamp).to.be.equal(ethers.BigNumber.from(0));
     expect(details.buyTimestamp).to.be.equal(ethers.BigNumber.from(0));
+
+    await Helper.deployAndMintERC20(user2.address, 200);
+
+    expect(await contract.connect(user2)['buyListing(uint256)'](0)).to.be.equal(true);
   });
 });
 
