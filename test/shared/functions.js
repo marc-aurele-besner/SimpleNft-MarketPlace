@@ -44,9 +44,9 @@ const returnCurrentTimestamp = async () => {
 
 const deployERC721 = async () => {
   const MockERC721 = await ethers.getContractFactory('MockERC721');
-  mockERC721 = await MockERC721.deploy();
-  const MockERC721Instance = await mockERC721.deployed();
-  return MockERC721Instance;
+  const mockERC721 = await MockERC721.deploy();
+  await mockERC721.deployed();
+  return mockERC721;
 };
 
 const mintERC721 = async (contract, _to, _tokenId) => {
@@ -58,6 +58,22 @@ const approveERC721 = async (contract, sender, _hasApprove, _tokenId, error) => 
   await checkRawTxnResult(input, sender, error);
 };
 
+const deployERC20 = async () => {
+  const MockERC20 = await ethers.getContractFactory('MockERC20');
+  const mockERC20 = await MockERC20.deploy();
+  await mockERC20.deployed();
+  return mockERC20;
+};
+
+const mintERC20 = async (contract, _to, amount) => {
+  await contract.mint(_to, amount);
+};
+
+const approveERC20 = async (contract, sender, spender, amount, error) => {
+  const input = await contract.connect(sender).approve(spender, amount);
+  await checkRawTxnResult(input, sender, error);
+};
+
 module.exports = {
   sendRawTxn,
   checkRawTxnResult,
@@ -65,5 +81,8 @@ module.exports = {
   returnCurrentTimestamp,
   deployERC721,
   mintERC721,
-  approveERC721
+  approveERC721,
+  deployERC20,
+  mintERC20,
+  approveERC20
 };
