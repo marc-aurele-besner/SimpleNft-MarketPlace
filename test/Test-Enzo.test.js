@@ -61,7 +61,7 @@ describe('Test-Enzo', function () {
     await expect(newFees).to.be.equal(0);
   });
 
-  it.only('Does it possible to create a listing and return detail of it ? (Should be)', async function () {
+  it('Does it possible to create a listing and return detail of it ? (Should be)', async function () {
     await Helper.deployERC721();
     await Helper.mintERC721(user1.address, 1);
     await contract.connect(user1).createListing(mockERC721.address, 0, 100);
