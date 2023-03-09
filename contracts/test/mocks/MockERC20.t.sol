@@ -6,15 +6,16 @@ pragma solidity ^0.8.0;
  */
 
 // import "hardhat/console.sol";
-import '../utils/console.sol';
-import '../utils/stdlib.sol';
-import '../utils/test.sol';
-import { CheatCodes } from '../utils/cheatcodes.sol';
+
+import { Vm } from 'foundry-test-utility/contracts/utils/vm.sol';
+import 'foundry-test-utility/contracts/utils/console.sol';
+import { DSTest } from 'foundry-test-utility/contracts/utils/test.sol';
+import { CheatCodes } from 'foundry-test-utility/contracts/utils/cheatcodes.sol';
 
 import { MockERC20 } from '../../mocks/MockERC20.sol';
 
 contract MockERC20Test is DSTest {
-  Vm public constant vm = Vm(HEVM_ADDRESS);
+  Vm public constant vm = Vm(address(uint160(uint256(keccak256('hevm cheat code')))));
 
   MockERC20 private mockERC20;
 

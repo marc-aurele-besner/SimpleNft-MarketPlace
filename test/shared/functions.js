@@ -44,9 +44,9 @@ const returnCurrentTimestamp = async () => {
 
 const deployERC721 = async () => {
   const MockERC721 = await ethers.getContractFactory('MockERC721');
-  mockERC721 = await MockERC721.deploy();
-  const MockERC721Instance = await mockERC721.deployed();
-  return MockERC721Instance;
+  const mockERC721 = await MockERC721.deploy();
+  await mockERC721.deployed();
+  return mockERC721;
 };
 
 const mintERC721 = async (contract, _to, _tokenId) => {
@@ -100,4 +100,5 @@ module.exports = {
   mintERC20,
   approveERC20,
   deploy_Mint_ApproveERC20
+
 };
