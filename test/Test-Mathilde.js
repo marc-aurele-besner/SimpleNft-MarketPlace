@@ -17,19 +17,6 @@ describe('SimpleNftMarketplace', function () {
 
     describe('Controlable.sol', function () {
 
-      // function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted)
-      it("", async function () { 
-      });
-
-      // function _isBlacklistedToken(address tokenContract, uint256 tokenId) internal view returns (bool isBlacklisted)
-      it("", async function () { 
-      });
-
-      // function _isSupportedContract(address tokenContract) internal view returns (bool isSupported)
-      it("", async function () { 
-      });
-
-
       // function transactionFee() public view returns (uint32)
       it("Should return the correct transactionFee", async function () {
         const expectedTransactionFee = 100000;
@@ -79,33 +66,11 @@ describe('SimpleNftMarketplace', function () {
 
     describe('ListingManager.sol', function () {
 
-      // function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount)
-      it("", async function () { 
-      });
-
       // function getListingDetail(uint256 listingId) public view returns (Listing memory)
       it("", async function () { 
       });
 
       // function isSold(uint256 listingId) public view returns (bool)
-      it("", async function () { 
-      });
-    });
-
-    describe('ValidateSignature.sol', function () {
-
-      // function _verifyCreateListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success) 
-      it("should return true for a valid signature", async function () { 
-      });
-      it("Should return an error if signature is invalid", async function () { 
-      });
-      it("Should return an error if some parameters are missing", async function () { 
-      });
-      it("Should return an error if parameters are nulls", async function () { 
-      });
-
-
-      // function _verifyBuyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success) 
       it("", async function () { 
       });
     });
@@ -118,18 +83,35 @@ describe('SimpleNftMarketplace', function () {
 
       // function name() public pure returns (string memory) 
       it("Should return the correct NAME", async function () {
-          const expectedName = "SimpleNft-MarketPlace";
+          const expectedName = "SimpleNftMarketplace";
           const actualName = await contract.name();
           expect(actualName).to.equal(expectedName);
       });
 
       // function version() public pure returns (string memory) 
-      it("", async function () { 
+      it("Should return the correct VERSION", async function () { 
+        const expectedVersion = "0.0.1";
+        const actualVersion = await contract.version();
+        expect(actualVersion).to.equal(expectedVersion);
       });
 
       // function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId)
       it("", async function () { 
       });
+          // function _verifyCreateListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success)
+          // it("should return true for a valid signature", async function () {
+          //   const tokenContract = '0x123...';
+          //   const tokenId = 1;
+          //   const salePrice = ethers.utils.parseEther('1');
+          //   const seller1 = seller.address;
+
+          //   const message = {tokenContract, tokenId, salePrice, seller1};
+          //   const signature = await seller._signTypedData(message);
+          //   const { v, r, s } = ethers.utils.splitSignature(signature);
+
+          //   const success = await contract._verifyCreateListing(tokenContract, tokenId, salePrice, seller1, v, r, s);
+          //   expect(success).to.be.true;
+          // });
 
       // function buyListing(uint256 listingId) external returns (bool success)
       it("", async function () { 
