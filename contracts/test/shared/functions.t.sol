@@ -34,4 +34,53 @@ contract Functions is Constants, Errors, TestStorage {
 
     return marketplace;
   }
+
+  function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice) public {
+    vm.prank(sender);
+    marketplace.createListing(tokenContract, tokenId, salePrice);
+  }
+
+  function helper_buyListing(address sender, uint256 listingId) public {
+    vm.prank(sender);
+    marketplace.buyListing(listingId);
+  }
+
+  function helper_createListing(
+    address sender,
+    address tokenContract,
+    uint256 tokenId,
+    uint256 salePrice,
+    address seller,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) public {
+    vm.prank(sender);
+    marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
+  }
+
+  function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) public {
+    vm.prank(sender);
+    marketplace.buyListing(listingId, buyer, v, r, s);
+  }
+
+  function helper_cancelListing(address sender, uint256 listingId) public {
+    vm.prank(sender);
+    marketplace.cancelListing(listingId);
+  }
+
+  function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported) public {
+    vm.prank(sender);
+    marketplace.changeSupportedContract(contractAddress, isSupported);
+  }
+
+  function helper_changeTransactionFee(address sender, uint32 newTransactionFee) public {
+    vm.prank(sender);
+    marketplace.changeTransactionFee(newTransactionFee);
+  }
+
+  function helper_withdrawTransactionFee() public {
+    vm.prank(TREASSURY);
+    marketplace.withdrawTransactionFee();
+  }
 }
