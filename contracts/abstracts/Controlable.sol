@@ -135,4 +135,8 @@ abstract contract Controlable is AccessControlUpgradeable {
     revokeRole(role, account);
     return true;
   }
+
+  function moderator_role() external view returns (bytes32) {
+    return MODERATOR_ROLE;
+  }
 }
