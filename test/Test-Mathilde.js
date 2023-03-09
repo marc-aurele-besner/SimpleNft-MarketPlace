@@ -95,8 +95,15 @@ describe('SimpleNftMarketplace', function () {
     describe('ValidateSignature.sol', function () {
 
       // function _verifyCreateListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success) 
-      it("", async function () { 
+      it("should return true for a valid signature", async function () { 
       });
+      it("Should return an error if signature is invalid", async function () { 
+      });
+      it("Should return an error if some parameters are missing", async function () { 
+      });
+      it("Should return an error if parameters are nulls", async function () { 
+      });
+
 
       // function _verifyBuyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success) 
       it("", async function () { 
