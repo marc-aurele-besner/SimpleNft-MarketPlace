@@ -58,20 +58,33 @@ const approveERC721 = async (contract, sender, _hasApprove, _tokenId, error) => 
   await checkRawTxnResult(input, sender, error);
 };
 
+const deploy_Mint_ApproveERC721 = async (sender, _tokenId) => {
+  const mockERC721 = await deployERC721();
+  await mintERC721(mockERC721, sender.address, _tokenId);
+  await approveERC721(mockERC721, sender, contract.address, _tokenId);
+  return mockERC721;
+};
+
 const deployERC20 = async () => {
   const MockERC20 = await ethers.getContractFactory('MockERC20');
-  const mockERC20 = await MockERC20.deploy();
-  await mockERC20.deployed();
+  mockERC20 = await MockERC20.deploy();
+  const MockERC20Instance = await mockERC20.deployed();
+  return MockERC20Instance;
+};
+
+const mintERC20 = async (contract, _to, _amount) => {
+  await contract.mint(_to, _amount);
+};
+
+const approveERC20 = async (contract, sender, _hasApprove, _amount) => {
+  await contract.connect(sender).approve(_hasApprove, _amount);
+};
+
+const deploy_Mint_ApproveERC20 = async (sender, _hasApprove, _amount) => {
+  const mockERC20 = await deployERC20();
+  mintERC20(mockERC20, sender, _amount);
+  approveERC20(mockERC20, sender, _hasApprove, _amount);
   return mockERC20;
-};
-
-const mintERC20 = async (contract, _to, amount) => {
-  await contract.mint(_to, amount);
-};
-
-const approveERC20 = async (contract, sender, spender, amount, error) => {
-  const input = await contract.connect(sender).approve(spender, amount);
-  await checkRawTxnResult(input, sender, error);
 };
 
 module.exports = {
@@ -82,7 +95,10 @@ module.exports = {
   deployERC721,
   mintERC721,
   approveERC721,
+  deploy_Mint_ApproveERC721,
   deployERC20,
   mintERC20,
-  approveERC20
+  approveERC20,
+  deploy_Mint_ApproveERC20
+
 };
