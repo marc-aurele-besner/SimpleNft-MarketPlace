@@ -5,11 +5,9 @@ import './Controlable.sol';
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 
-
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 
 abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
-
   struct Listing {
     address tokenContract;
     uint tokenId;
@@ -64,7 +62,7 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
     uint256 amount = listing.salePrice - listingFee;
 
     _token.transferFrom(buyer, address(this), listing.salePrice);
-    _token.transferFrom(address(this), listing.seller, amount);
+    _token.transfer(listing.seller, amount);
     IERC721Upgradeable(listing.tokenContract).safeTransferFrom(address(this), buyer, listing.tokenId);
 
     _listings[listingId].buyer = buyer;

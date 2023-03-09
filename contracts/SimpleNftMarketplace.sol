@@ -29,11 +29,11 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   }
 
   function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
-    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
   function buyListing(uint256 listingId) external returns (bool success) {
-    _buyListing(listingId, msg.sender);
+    return _buyListing(listingId, msg.sender);
   }
 
   function createListing(
@@ -57,6 +57,10 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   // Moderator || Listing creator
   function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(listingId) returns (bool success) {
     return false;
+  }
+
+  function changeToken(IERC20Upgradeable contractAddress) external onlyAdmin returns (bool success) {
+    return _changeToken(contractAddress);
   }
 
   // Admin

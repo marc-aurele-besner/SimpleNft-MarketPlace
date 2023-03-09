@@ -1894,15 +1894,17 @@ abstract contract Controlable is AccessControlUpgradeable {
     _;
   }
 
-  function _changeSupportedContract(address contractAddress) internal onlyAdmin returns (bool success) {
-    if (supportedContracts[contractAddress]) {
-      // Le contrat est déjà pris en charge, donc on le supprime
-      supportedContracts[contractAddress] = false;
-      emit SupportedContractRemoved(contractAddress);
-    } else {
-      // Le contrat n'est pas pris en charge, donc on l'ajoute
-      supportedContracts[contractAddress] = true;
+  function _changeToken(IERC20Upgradeable contractAddress) internal returns (bool success) {
+    _token = contractAddress;
+    return true;
+  }
+
+  function _changeSupportedContract(address contractAddress, bool isSupported) internal returns (bool success) {
+    supportedContracts[contractAddress] = isSupported;
+    if (isSupported) {
       emit SupportedContractAdded(contractAddress);
+    } else {
+      emit SupportedContractRemoved(contractAddress);
     }
     return true;
   }
@@ -1959,12 +1961,12 @@ abstract contract Controlable is AccessControlUpgradeable {
   }
 
   function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
-    grantRole(MODERATOR_ROLE, account);
+    _grantRole(MODERATOR_ROLE, account);
     return true;
   }
 
   function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
-    grantRole(TREASURY_ROLE, account);
+    _grantRole(TREASURY_ROLE, account);
     return true;
   }
 
@@ -1980,15 +1982,46 @@ abstract contract Controlable is AccessControlUpgradeable {
     return hasRole(MODERATOR_ROLE, account);
   }
 
-  function addRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
-    _grantRole(role, account);
+  function addRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
+    grantRole(role, account);
     return true;
   }
 
-  function removeRole(bytes32 role, address account) internal onlyAdmin returns (bool success) {
-    _revokeRole(role, account);
+  function removeRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
+    revokeRole(role, account);
     return true;
   }
+}
+
+
+// File @openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol@v4.8.1
+
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @title ERC721 token receiver interface
+ * @dev Interface for any contract that wants to support safeTransfers
+ * from ERC721 asset contracts.
+ */
+interface IERC721ReceiverUpgradeable {
+    /**
+     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+     * by `operator` from `from`, this function is called.
+     *
+     * It must return its Solidity selector to confirm the token transfer.
+     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+     *
+     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
 }
 
 
@@ -1997,9 +2030,7 @@ abstract contract Controlable is AccessControlUpgradeable {
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// IERC721ReceiverUpgradeable
-
-abstract contract ListingManager is Controlable {
+abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   struct Listing {
     address tokenContract;
     uint tokenId;
@@ -2011,7 +2042,7 @@ abstract contract ListingManager is Controlable {
   }
 
   uint32 public constant BASE_TRANSACTION_FEE = 100_000;
-  uint256 private _listingId = 0;
+  uint256 private _listingId;
   mapping(uint256 => Listing) internal _listings;
 
   event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
@@ -2019,6 +2050,10 @@ abstract contract ListingManager is Controlable {
 
   function __ListingManager_init(address treasury) internal onlyInitializing {
     __Controlable_init(treasury);
+  }
+
+  function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    return this.onERC721Received.selector;
   }
 
   function _calculateListingFee(uint256 listingId) internal view returns (uint256 amount) {
@@ -2029,7 +2064,7 @@ abstract contract ListingManager is Controlable {
   function _createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller) internal returns (uint256 listingId) {
     require(!_isBlacklistedUser(seller), 'ListingManager: User is blacklisted');
     require(!_isBlacklistedToken(tokenContract, tokenId), 'ListingManager: Contract token is blacklisted');
-    require(!_isSupportedContract(tokenContract), 'ListingManager: Contract token is not supported');
+    require(_isSupportedContract(tokenContract), 'ListingManager: Contract token is not supported');
     require(salePrice > 0, 'ListingManager: Sell price must be above zero');
 
     IERC721Upgradeable(tokenContract).safeTransferFrom(seller, address(this), tokenId);
@@ -2050,7 +2085,7 @@ abstract contract ListingManager is Controlable {
     uint256 amount = listing.salePrice - listingFee;
 
     _token.transferFrom(buyer, address(this), listing.salePrice);
-    _token.transferFrom(address(this), listing.seller, amount);
+    _token.transfer(listing.seller, amount);
     IERC721Upgradeable(listing.tokenContract).safeTransferFrom(address(this), buyer, listing.tokenId);
 
     _listings[listingId].buyer = buyer;
@@ -2127,7 +2162,7 @@ pragma solidity ^0.8.19;
 
 
 contract SimpleNftMarketplace is ListingManager, ValidateSignature {
-  string public constant NAME = 'SimpleNft-MarketPlace';
+  string public constant NAME = 'SimpleNftMarketplace';
   string public constant VERSION = '0.0.1';
 
   modifier onlyListingOwnerOrModerator(uint256 listingId) {
@@ -2149,11 +2184,11 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
   }
 
   function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId) {
-    _createListing(tokenContract, tokenId, salePrice, msg.sender);
+    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
   }
 
   function buyListing(uint256 listingId) external returns (bool success) {
-    _buyListing(listingId, msg.sender);
+    return _buyListing(listingId, msg.sender);
   }
 
   function createListing(
@@ -2179,9 +2214,13 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     return false;
   }
 
+  function changeToken(IERC20Upgradeable contractAddress) external onlyAdmin returns (bool success) {
+    return _changeToken(contractAddress);
+  }
+
   // Admin
   function changeSupportedContract(address contractAddress, bool isSupported) external onlyAdmin returns (bool success) {
-    return _changeSupportedContract(contractAddress);
+    return _changeSupportedContract(contractAddress, isSupported);
   }
 
   function changeTransactionFee(uint32 newTransactionFee) external onlyAdmin returns (bool success) {
