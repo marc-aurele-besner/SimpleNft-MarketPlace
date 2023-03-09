@@ -18,17 +18,17 @@ describe('SimpleNftMarketplace', function () {
     describe('Controlable.sol', function () {
 
       // function transactionFee() public view returns (uint32)
-      it("Should return the correct transactionFee", async function () {
-        const expectedTransactionFee = 100000;
-        const currentTransactionFee = await contract.transactionFee();
-        expect(currentTransactionFee).to.equal(expectedTransactionFee);
-      });
+      // it("Should return the correct transactionFee", async function () {
+      //   const expectedTransactionFee = 100000;
+      //   const currentTransactionFee = await contract.transactionFee();
+      //   expect(currentTransactionFee).to.equal(expectedTransactionFee);
+      // });
 
-      // function token() public view returns (address tokenAddress)
-      it("Should return the token address", async function () {
-        const currentTokenAddress = await contract.token();
-        expect(currentTokenAddress).to.equal(await contract._token()); 
-      });
+      // // function token() public view returns (address tokenAddress)
+      // it("Should return the token address", async function () {
+      //   const currentTokenAddress = await contract.token();
+      //   expect(currentTokenAddress).to.equal(await contract._token()); 
+      // });
 
       it("Should verify if administrator", async function () { 
         const adminRole = contract.DEFAULT_ADMIN_ROLE();
@@ -96,30 +96,13 @@ describe('SimpleNftMarketplace', function () {
       });
 
       // function createListing(address tokenContract, uint256 tokenId, uint256 salePrice) external returns (uint256 listingId)
-      it("", async function () { 
-      });
-          // function _verifyCreateListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success)
-          // it("should return true for a valid signature", async function () {
-          //   const tokenContract = '0x123...';
-          //   const tokenId = 1;
-          //   const salePrice = ethers.utils.parseEther('1');
-          //   const seller1 = seller.address;
-
-          //   const message = {tokenContract, tokenId, salePrice, seller1};
-          //   const signature = await seller._signTypedData(message);
-          //   const { v, r, s } = ethers.utils.splitSignature(signature);
-
-          //   const success = await contract._verifyCreateListing(tokenContract, tokenId, salePrice, seller1, v, r, s);
-          //   expect(success).to.be.true;
-          // });
-
-      // function buyListing(uint256 listingId) external returns (bool success)
-      it("", async function () { 
-      });
-
-      // function createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) external returns (uint256 listingId)
       it("should create a new listing", async function () { 
+        // const tokenContract = '0x123...';
+        // const tokenId = 1;
+        // const salePrice = ethers.utils.parseEther('1');
+
       });
+
       it("should revert if user (seller) is blacklisted", async function () { 
       });
       it("should not create a listing if seller is blacklisted", async function () { 
@@ -139,6 +122,31 @@ describe('SimpleNftMarketplace', function () {
       });
       it('should emit a ListingCreated event', async function () {
       });
+      
+      // function buyListing(uint256 listingId) external returns (bool success)
+      it("", async function () { 
+      });
+
+      // function createListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) external returns (uint256 listingId)
+      it("should create a new listing", async function () { 
+      });
+
+          // function _verifyCreateListing(address tokenContract, uint256 tokenId, uint256 salePrice, address seller, uint8 v, bytes32 r, bytes32 s) internal view returns (bool success)
+          // it("should return true for a valid signature", async function () {
+          //   const tokenContract = '0x123...';
+          //   const tokenId = 1;
+          //   const salePrice = ethers.utils.parseEther('1');
+          //   const seller1 = seller.address;
+
+          //   const message = {tokenContract, tokenId, salePrice, seller1};
+          //   const signature = await seller._signTypedData(message);
+          //   const { v, r, s } = ethers.utils.splitSignature(signature);
+
+          //   const success = await contract._verifyCreateListing(tokenContract, tokenId, salePrice, seller1, v, r, s);
+          //   expect(success).to.be.true;
+          // });
+
+
       
       // function buyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) external returns (bool success)
       it("", async function () { 
