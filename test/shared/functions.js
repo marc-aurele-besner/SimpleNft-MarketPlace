@@ -67,23 +67,25 @@ const deploy_Mint_ApproveERC721 = async (sender, _tokenId) => {
 
 const deployERC20 = async () => {
   const MockERC20 = await ethers.getContractFactory('MockERC20');
-  mockERC20 = await MockERC20.deploy();
+  const mockERC20 = await MockERC20.deploy();
   const MockERC20Instance = await mockERC20.deployed();
   return MockERC20Instance;
 };
 
 const mintERC20 = async (contract, _to, _amount) => {
   await contract.mint(_to, _amount);
+  expect(await contract.balanceOf(_to)).to.equal(_amount);
 };
 
-const approveERC20 = async (contract, sender, _hasApprove, _amount) => {
-  await contract.connect(sender).approve(_hasApprove, _amount);
+const approveERC20 = async (contract, sender, spenderAddress, _amount) => {
+  await contract.connect(sender).approve(spenderAddress, _amount);
+  expect(await contract.allowance(sender.address, spenderAddress)).to.equal(_amount);
 };
 
-const deploy_Mint_ApproveERC20 = async (sender, _hasApprove, _amount) => {
+const deploy_Mint_ApproveERC20 = async (sender, spenderAddress, _amount) => {
   const mockERC20 = await deployERC20();
-  mintERC20(mockERC20, sender, _amount);
-  approveERC20(mockERC20, sender, _hasApprove, _amount);
+  await mintERC20(mockERC20, sender.address, _amount);
+  await approveERC20(mockERC20, sender, spenderAddress, _amount);
   return mockERC20;
 };
 
@@ -100,5 +102,4 @@ module.exports = {
   mintERC20,
   approveERC20,
   deploy_Mint_ApproveERC20
-
 };

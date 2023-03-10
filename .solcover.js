@@ -1,4 +1,4 @@
-const skipFiles = ["test/", "mock/"];
+const skipFiles = ["test/", "mocks/"];
 
 module.exports = {
   skipFiles,

@@ -43,6 +43,11 @@ abstract contract Controlable is AccessControlUpgradeable {
     _;
   }
 
+  function _changeToken(IERC20Upgradeable contractAddress) internal returns (bool success) {
+    _token = contractAddress;
+    return true;
+  }
+
   function _changeSupportedContract(address contractAddress, bool isSupported) internal returns (bool success) {
     supportedContracts[contractAddress] = isSupported;
     if (isSupported) {
@@ -134,9 +139,5 @@ abstract contract Controlable is AccessControlUpgradeable {
   function removeRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
     revokeRole(role, account);
     return true;
-  }
-
-  function moderator_role() external view returns (bytes32) {
-    return MODERATOR_ROLE;
   }
 }

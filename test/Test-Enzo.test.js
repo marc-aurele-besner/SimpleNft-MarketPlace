@@ -91,9 +91,11 @@ describe('Test-Enzo', function () {
   it('Does the onlyModerator modifier and the giveModeratorAccess function work ? (Should be)', async function () {
     expect(await contract.isModerator(user1.address)).to.be.equal(false);
     // Problème avec l'argument MODERATOR_ROLE
-    expect(await contract.grantRole(contract.moderator_role(), user1.address)).to.be.equal(true);
+    await contract.grantRole(await contract.MODERATOR_ROLE(), user1.address);
     expect(await contract.isModerator(user1.address)).to.be.equal(true);
-    expect(await contract.connect(user1).blacklistUser(user2.address, true)).to.be.equal(true);
+
+    expect(await contract.isBlacklistedUser(user2.address)).to.be.equal(false);
+    await contract.connect(user1).blacklistUser(user2.address, true);
     expect(await contract.isBlacklistedUser(user2.address)).to.be.equal(true);
   });
 
@@ -128,9 +130,13 @@ describe('Test-Enzo', function () {
     // expect(details.listingTimestamp).to.be.equal(ethers.BigNumber.from(0));
     expect(details.buyTimestamp).to.be.equal(ethers.BigNumber.from(0));
 
-    await Helper.deploy_Mint_ApproveERC20(user2.address, contract.address, 200);
+    const token = await Helper.deploy_Mint_ApproveERC20(user2, contract.address, 200);
 
-    expect(await contract.connect(user2)['buyListing(uint256)'](0)).to.be.equal(true);
+    await contract.changeToken(token.address);
+
+    expect(await contract.connect(user2).callStatic['buyListing(uint256)'](0)).to.be.equal(true);
+
+    await contract.connect(user2)['buyListing(uint256)'](0);
   });
 });
 
