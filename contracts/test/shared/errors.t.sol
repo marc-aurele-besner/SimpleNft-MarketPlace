@@ -11,30 +11,14 @@ contract Errors is DSTest {
 
   // Add a revert error to the enum of errors.
   enum RevertStatus {
-    // 0
     Success,
-    // 1
     SkipValidation,
-    MerkleProofInvalidMultiProof,
-    OwnableCallerNotOwner,
-    NewOwnerIsZero,
-    MintableMaxSupplyReached,
-    MintableMaxMintReached,
-    ControlablePublicMintingStartInPast,
-    ControlablePublicMintingStartBeforeWhitelistMinting,
-    SimpleNftTransactionValueBelowMintPrice
+    OnlyAdmin
   }
 
   // Associate your error with a revert message and add it to the mapping.
   constructor() {
-    _errors[RevertStatus.MerkleProofInvalidMultiProof] = 'MerkleProof: invalid multiproof';
-    _errors[RevertStatus.OwnableCallerNotOwner] = 'Ownable: caller is not the owner';
-    _errors[RevertStatus.NewOwnerIsZero] = 'Ownable: new owner is the zero address';
-    _errors[RevertStatus.MintableMaxSupplyReached] = 'Mintable: max supply reached';
-    _errors[RevertStatus.MintableMaxMintReached] = 'Mintable: max mint reached';
-    _errors[RevertStatus.ControlablePublicMintingStartInPast] = "Controlable: Public minting can't start in the past";
-    _errors[RevertStatus.ControlablePublicMintingStartBeforeWhitelistMinting] = "Controlable: Public minting can't start before whitelist minting";
-    _errors[RevertStatus.SimpleNftTransactionValueBelowMintPrice] = 'SimpleNft: Transaction value below mint price';
+    _errors[RevertStatus.OnlyAdmin] = 'Controlable: Only admin';
   }
 
   // Return the error message associated with the error.
