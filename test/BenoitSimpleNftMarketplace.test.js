@@ -19,6 +19,25 @@ describe('Test-Benoit', function () {
     await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100);
     expect(await contract.listingPrice(0)).to.be.equal(100);
   });
+  it('does it return true if the listing is active (should be)', async function () {
+    const mockERC721 = await Helper.deployERC721();
+
+    await Helper.mintERC721(mockERC721, user1.address, 1);
+    await Helper.approveERC721(mockERC721, user1, contract.address, 1);
+    await contract.changeSupportedContract(mockERC721.address, true);
+    await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100);
+
+    expect(await contract.isListingActive(0)).to.equal(true);
+
+    const detail = await contract.getListingDetail(0);
+    const address0 = '0x0000000000000000000000000000000000000000';
+
+    expect(await detail.tokenContract).to.be.equal(mockERC721.address);
+    expect(await detail.tokenId).to.be.equal(1);
+    expect(await detail.salePrice).to.be.equal(100);
+    expect(await detail.seller).to.be.equal(user1.address);
+    expect(await detail.buyer).to.be.equal(address0);
+  });
 
   //#37 read function tests
 
