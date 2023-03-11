@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "bash ./test.sh",
-    "build": "npx hardhat run scripts/buildAbi.js",
+    "build": "npx hardhat run scripts/buildAbi.js && npm run flatten",
     "coverage": "npx hardhat coverage",
     "flatten": "npx hardhat flatten > contractsFlatten/Flat.sol && npx hardhat flatten contracts/SimpleNftMarketplace.sol > contractsFlatten/SimpleNftMarketplacelat.sol",
     "coverage:flatten": "npx hardhat coverage --config hardhat.flat.config.js",

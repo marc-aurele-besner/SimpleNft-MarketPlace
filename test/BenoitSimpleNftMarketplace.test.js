@@ -19,24 +19,24 @@ describe('Test-Benoit', function () {
     await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 100);
     expect(await contract.listingPrice(0)).to.be.equal(100);
   });
+
+  //#37 read function tests
+
+  // it('does it return true is the listing is active (should be)', async () => {});
+
+  // it('does it return true is the listing is active (should be)', async () => {});
+
+  // it('does it return true if a user is blacklisted (should be)', async () => {});
+
+  // it('does it return true if a token is blacklisted (should be)', async () => {});
+
+  // it('does it return true if a contract is supported (should be)', async () => {});
+
+  // it('does it return the correct listing fee (should be)', async () => {});
+  // // buy / sell
+  // it('Does user can buy NFT (trade eth for token)(should be)', async function () {});
+  // it('Does user can sell NFT (trade eth for token)(should be)', async function () {});
+  // // WithDrawEth/ Send
+  // it('Does user can withDrawEth from the marketplace (should be)', async function () {});
+  // it('Does user can sendEth to the marketplace (should  be)', async function () {});
 });
-
-//#37 read function tests
-
-it('does it return true is the listing is active (should be)', async () => {});
-
-it('does it return true is the listing is active (should be)', async () => {});
-
-it('does it return true if a user is blacklisted (should be)', async () => {});
-
-it('does it return true if a token is blacklisted (should be)', async () => {});
-
-it('does it return true if a contract is supported (should be)', async () => {});
-
-it('does it return the correct listing fee (should be)', async () => {});
-// buy / sell
-it('Does user can buy NFT (trade eth for token)(should be)', async function () {});
-it('Does user can sell NFT (trade eth for token)(should be)', async function () {});
-// WithDrawEth/ Send
-it('Does user can withDrawEth from the marketplace (should be)', async function () {});
-it('Does user can sendEth to the marketplace (should  be)', async function () {});

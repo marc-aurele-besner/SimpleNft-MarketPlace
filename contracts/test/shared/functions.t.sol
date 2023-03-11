@@ -3,15 +3,24 @@ pragma solidity ^0.8.0;
 
 import 'foundry-test-utility/contracts/utils/console.sol';
 import { CheatCodes } from 'foundry-test-utility/contracts/utils/cheatcodes.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 
 import { Constants } from './constants.t.sol';
 import { Errors } from './errors.t.sol';
 import { TestStorage } from './testStorage.t.sol';
 
+import { MockERC20 } from '../../mocks/MockERC20.sol';
+import { MockERC721 } from '../../mocks/MockERC721.sol';
 import { SimpleNftMarketplace } from '../../SimpleNftMarketplace.sol';
 
 contract Functions is Constants, Errors, TestStorage {
   SimpleNftMarketplace public marketplace;
+
+  MockERC20 public token;
+
+  MockERC721 public nft1;
+  MockERC721 public nft2;
+  MockERC721 public nft3;
 
   enum TestType {
     Standard
@@ -25,6 +34,11 @@ contract Functions is Constants, Errors, TestStorage {
     vm.startPrank(ADMIN);
 
     marketplace = new SimpleNftMarketplace();
+
+    token = new MockERC20();
+    nft1 = new MockERC721();
+    nft2 = new MockERC721();
+    nft3 = new MockERC721();
 
     marketplace.initialize(TREASSURY);
 
@@ -69,9 +83,32 @@ contract Functions is Constants, Errors, TestStorage {
     marketplace.cancelListing(listingId);
   }
 
-  function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported) public {
+  function helper_changeToken(address sender, IERC20Upgradeable contractAddress, RevertStatus revertType) public {
+    if (revertType == RevertStatus.Success) assertEq(marketplace.token(), address(0));
+
+    verify_revertCall(revertType);
+    vm.prank(sender);
+    marketplace.changeToken(contractAddress);
+
+    if (revertType == RevertStatus.Success) assertEq(marketplace.token(), address(token));
+  }
+
+  function helper_changeToken(address sender, IERC20Upgradeable contractAddress) public {
+    helper_changeToken(sender, contractAddress, RevertStatus.Success);
+  }
+
+  function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported, RevertStatus revertType) public {
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isSupportedContract(address(nft1)));
+
+    verify_revertCall(revertType);
     vm.prank(sender);
     marketplace.changeSupportedContract(contractAddress, isSupported);
+
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isSupportedContract(address(nft1)));
+  }
+
+  function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported) public {
+    helper_changeSupportedContract(sender, contractAddress, isSupported, RevertStatus.Success);
   }
 
   function helper_changeTransactionFee(address sender, uint32 newTransactionFee) public {
