@@ -49,6 +49,13 @@ contract Functions is Constants, Errors, TestStorage {
     return marketplace;
   }
 
+  event TransactionFeeChanged(uint32 indexed oldFee, uint32 indexed newFee);
+  event SupportedContractRemoved(address indexed contractAddress);
+  event SupportedContractAdded(address indexed contractAddress);
+  event ListingCreated(uint256 listingId, address tokenContract, uint256 tokenId, uint256 salePrice, address seller);
+  event Sale(uint256 listingId, address buyer);
+  event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
   function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice) public {
     vm.prank(sender);
     marketplace.createListing(tokenContract, tokenId, salePrice);

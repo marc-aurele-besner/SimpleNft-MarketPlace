@@ -13,12 +13,40 @@ contract Errors is DSTest {
   enum RevertStatus {
     Success,
     SkipValidation,
-    OnlyAdmin
+    InvalidSignature,
+    CallerNotListingOwnerOrModerator,
+    CallerNotAdmin,
+    CallerNotModerator,
+    CallerNotTreasury,
+    TransferFailed,
+    ContractTokenNotSupported,
+    ListingSold,
+    SellPriceAboveZero,
+    TokenBlacklisted,
+    UserBlacklisted,
+    OnlyRenounceRolesForSelf,
+    ContractIsNotInitializing,
+    ContractIsInitializing,
+    ContractAlreasyInitialized
   }
 
   // Associate your error with a revert message and add it to the mapping.
   constructor() {
-    _errors[RevertStatus.OnlyAdmin] = 'Controlable: Only admin';
+    _errors[RevertStatus.InvalidSignature] = 'SimpleNftMarketplace: invalid signature';
+    _errors[RevertStatus.CallerNotListingOwnerOrModerator] = 'SimpleNftMarketplace: Only listing owner or moderator';
+    _errors[RevertStatus.CallerNotAdmin] = 'Controlable: Only admin';
+    _errors[RevertStatus.CallerNotModerator] = 'Controlable: Only moderator';
+    _errors[RevertStatus.CallerNotTreasury] = 'Controlable: Only treasury';
+    _errors[RevertStatus.TransferFailed] = 'Controlable: Transfer failed';
+    _errors[RevertStatus.ContractTokenNotSupported] = 'ListingManager: Contract token is not supported';
+    _errors[RevertStatus.ListingSold] = 'ListingManager: Listing already sold';
+    _errors[RevertStatus.SellPriceAboveZero] = 'ListingManager: Sell price must be above zero';
+    _errors[RevertStatus.TokenBlacklisted] = 'ListingManager: Contract token is blacklisted';
+    _errors[RevertStatus.UserBlacklisted] = 'ListingManager: User is blacklisted';
+    _errors[RevertStatus.OnlyRenounceRolesForSelf] = 'AccessControl: can only renounce roles for self';
+    _errors[RevertStatus.ContractIsNotInitializing] = 'Initializable: contract is not initializing';
+    _errors[RevertStatus.ContractIsInitializing] = 'Initializable: contract is initializing';
+    _errors[RevertStatus.ContractAlreasyInitialized] = 'Initializable: contract is already initialized';
   }
 
   // Return the error message associated with the error.
