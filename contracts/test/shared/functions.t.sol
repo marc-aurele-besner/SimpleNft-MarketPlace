@@ -127,4 +127,10 @@ contract Functions is Constants, Errors, TestStorage {
     vm.prank(TREASSURY);
     marketplace.withdrawTransactionFee();
   }
+
+  function helper_mint_approve(nft, address sender, uint256 tokenId) public {
+    nft.mint(sender, tokenId);
+    vm.prank(sender);
+    nft.approve(marketplace.address, tokenId);
+  }
 }

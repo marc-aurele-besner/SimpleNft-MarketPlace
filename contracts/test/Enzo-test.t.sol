@@ -36,7 +36,7 @@ contract SimpleNftMarketplace_test_enzo is Helper {
   function test_SimpleNftMarketplace_basic_createListing() public {
     helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
     helper_changeSupportedContract(ADMIN, address(nft1), true);
-
     // Mint token, approve marketplace, create listing
+    helper_mint_approve(nft1, user1, tokenId);
   }
 }
