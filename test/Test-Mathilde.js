@@ -5,11 +5,11 @@ const Helper = require('./shared');
 
 describe('SimpleNftMarketplace', function () {
   let Contract, token;
-  let owner, lucie, seller, moderator, admin, nonAdmin, treasury, nonTreasury, nonModerator;
+  let owner, lucie, seller, moderator, admin, nonAdmin, treasury, nonTreasury, nonModerator, account;
   let listingId;
 
   beforeEach(async function () {
-    [owner, lucie, seller, moderator, nonModerator, admin, nonAdmin, treasury, nonTreasury] = await ethers.getSigners();
+    [owner, lucie, seller, moderator, nonModerator, admin, nonAdmin, treasury, nonTreasury, account] = await ethers.getSigners();
     const Contract = await ethers.getContractFactory('SimpleNftMarketplace');
     contract = await Contract.deploy();
     await contract.deployed();
@@ -69,6 +69,47 @@ describe('SimpleNftMarketplace', function () {
       expect(await contract.connect(lucie).isModerator(lucie.address)).to.be.false;
       expect(await contract.connect(nonModerator).isModerator(nonModerator.address)).to.be.false;
     });
+
+    it('Should add a role to an account', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      const adminRole = contract.DEFAULT_ADMIN_ROLE();
+      await contract.grantRole(adminRole, admin.address);
+      await contract.connect(admin).addRole(moderatorRole, account.address);
+      const hasRole = await contract.hasRole(moderatorRole, account.address);
+      expect(hasRole).to.equal(true);
+    });
+    it('Should only be callable by an admin', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      await expect(contract.connect(lucie).addRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
+    });
+
+    //  function removeRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
+    it('Should remove a role to an account', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      const adminRole = contract.DEFAULT_ADMIN_ROLE();
+      await contract.grantRole(adminRole, admin.address);
+      await contract.connect(admin).addRole(moderatorRole, account.address);
+      const hasRole = await contract.hasRole(moderatorRole, account.address);
+      expect(hasRole).to.equal(true);
+
+      await contract.connect(admin).removeRole(moderatorRole, account.address);
+      const hasRole1 = await contract.hasRole(moderatorRole, account.address);
+      expect(hasRole1).to.equal(false);
+    });
+    it('Should only be callable by an admin', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      await expect(contract.connect(lucie).removeRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
+    });
+    it('Can not remove role from itself, only admin', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      const adminRole = contract.DEFAULT_ADMIN_ROLE();
+      await contract.grantRole(adminRole, admin.address);
+      await contract.connect(admin).addRole(moderatorRole, account.address);
+      const hasRole = await contract.hasRole(moderatorRole, account.address);
+      await expect(contract.connect(account).removeRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
+    });
+    //   // try to remove moderator role from moderatorRole (should fail)
+    // await expect(contract.connect(account).removeRole(moderatorRole, moderatorRole)).to.be.revertedWith('Controlable: Can not remove role from itself');
   });
 
   describe('ListingManager.sol', function () {
