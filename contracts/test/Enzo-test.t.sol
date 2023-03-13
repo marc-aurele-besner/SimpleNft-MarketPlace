@@ -43,7 +43,7 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     helper_createListing(address(1), address(nft1), 1, 100);
     // Verify
     assertEq(marketplace.listingPrice(0), 100);
-    assertTrue(marketplace.isListingActive(0), 'isListingActive');
+    assertTrue(marketplace.isListingActive(0), 'Listing is not active');
   }
 
   function test_SimpleNftMarketplace_basic_cancelListing() public {
@@ -55,11 +55,12 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     helper_createListing(address(1), address(nft1), 1, 100);
     // Verify
     assertEq(marketplace.listingPrice(0), 100);
-    assertTrue(marketplace.isListingActive(0), 'isListingNotActive');
+    assertTrue(marketplace.isListingActive(0), 'Listing is not active');
     // Cancel
     helper_cancelListing(address(1), 0);
-    assertEq(marketplace.listingPrice(0), 100);
-    assertTrue(marketplace.isListingActive(0), 'isListingNotActive');
+    assertEq(marketplace.listingPrice(0), 0);
+    vm.expectRevert('SimpleNftMarketplace: Listing is not active');
+    marketplace.isListingActive(0);
   }
 
   // function test_SimpleNftMarketplace_basic_cancelListing_withoutAccess() public {

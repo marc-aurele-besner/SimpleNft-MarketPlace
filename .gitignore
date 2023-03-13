@@ -4,7 +4,6 @@ coverage
 coverage.json
 typechain
 typechain-types
-.vscode/settings.json
 
 # Hardhat files
 cache
@@ -17,7 +16,6 @@ coverage
 coverage.json
 typechain
 typechain-types
-.vscode/settings.json
 
 # Hardhat files
 cache
