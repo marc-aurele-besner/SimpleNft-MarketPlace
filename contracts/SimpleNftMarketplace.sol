@@ -15,6 +15,10 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     _;
   }
 
+  modifier onlySeller(uint256 listingId) {
+    require(msg.sender == _listings[listingId].seller, 'SimpleNftMarketplace: Only seller')
+  }
+
   function initialize(address treasury) external initializer {
     __ValidateSignature_init(name(), version());
     __ListingManager_init(treasury);
@@ -56,7 +60,11 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
 
   // Moderator || Listing creator
   function cancelListing(uint256 listingId) external onlyListingOwnerOrModerator(listingId) returns (bool success) {
-    return false;
+    return _cancelListing(listingId);
+  }
+
+  function editListingPrice(uint256 listingId, uint256 newPrice) external onlySeller(listingId) returns (bool) {
+    return _editListingPrice(listingId, newPrice);
   }
 
   function changeToken(IERC20Upgradeable contractAddress) external onlyAdmin returns (bool success) {
