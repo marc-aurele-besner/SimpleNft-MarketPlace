@@ -26,7 +26,7 @@ contract SimpleNftMarketplace_test is Helper {
   }
 
   function test_SimpleNftMarketplace_basic_changeSupportedContract_notAdmin() public {
-    helper_changeSupportedContract(address(2), address(nft1), true, RevertStatus.OnlyAdmin);
+    helper_changeSupportedContract(address(2), address(nft1), true, RevertStatus.CallerNotAdmin);
   }
 
   function test_SimpleNftMarketplace_basic_changeToken() public {

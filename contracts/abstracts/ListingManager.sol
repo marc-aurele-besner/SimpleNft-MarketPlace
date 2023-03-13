@@ -74,6 +74,22 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
     return true;
   }
 
+  function _editListingPrice(uint256 listingId, uint256 newPrice) internal returns (bool) {
+    _listings[listingId].salePrice = newPrice;
+    return true;
+  }
+
+  function _cancelListing(uint256 listingId) internal returns (bool) {
+    address tokenContract = _listings[listingId].tokenContract;
+    address seller = _listings[listingId].seller;
+    uint256 tokenId = _listings[listingId].tokenId;
+
+    delete _listings[listingId];
+
+    IERC721Upgradeable(tokenContract).safeTransferFrom(address(this), seller, tokenId);
+    return true;
+  }
+
   function getListingDetail(uint256 listingId) public view returns (Listing memory) {
     return _listings[listingId];
   }
