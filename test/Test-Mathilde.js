@@ -77,6 +77,10 @@ describe('SimpleNftMarketplace', function () {
     it('Should add a role to an account', async function () {
       const moderatorRole = contract.MODERATOR_ROLE();
       const adminRole = contract.DEFAULT_ADMIN_ROLE();
+
+      expect(await contract.connect(admin).isAdmin(admin.address)).to.be.false;
+      expect(await contract.connect(account).isModerator(account.address)).to.be.false;
+
       await contract.grantRole(adminRole, admin.address);
       await contract.connect(admin).addRole(moderatorRole, account.address);
       const hasRole = await contract.hasRole(moderatorRole, account.address);
@@ -90,10 +94,16 @@ describe('SimpleNftMarketplace', function () {
     it('Should remove a role to an account', async function () {
       const moderatorRole = contract.MODERATOR_ROLE();
       const adminRole = contract.DEFAULT_ADMIN_ROLE();
+
+      expect(await contract.connect(admin).isAdmin(admin.address)).to.be.false;
+      expect(await contract.connect(account).isModerator(account.address)).to.be.false;
+
       await contract.grantRole(adminRole, admin.address);
       await contract.connect(admin).addRole(moderatorRole, account.address);
       const hasRole = await contract.hasRole(moderatorRole, account.address);
+
       expect(hasRole).to.equal(true);
+
       await contract.connect(admin).removeRole(moderatorRole, account.address);
       const hasRole1 = await contract.hasRole(moderatorRole, account.address);
       expect(hasRole1).to.equal(false);
@@ -105,6 +115,10 @@ describe('SimpleNftMarketplace', function () {
     it('Can not remove role from itself, only admin', async function () {
       const moderatorRole = contract.MODERATOR_ROLE();
       const adminRole = contract.DEFAULT_ADMIN_ROLE();
+
+      expect(await contract.connect(admin).isAdmin(admin.address)).to.be.false;
+      expect(await contract.connect(account).isModerator(account.address)).to.be.false;
+
       await contract.grantRole(adminRole, admin.address);
       await contract.connect(admin).addRole(moderatorRole, account.address);
       const hasRole = await contract.hasRole(moderatorRole, account.address);
