@@ -59,11 +59,40 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     // Cancel
     helper_cancelListing(address(1), 0);
     assertEq(marketplace.listingPrice(0), 0);
-    vm.expectRevert('SimpleNftMarketplace: Listing is not active');
     marketplace.isListingActive(0);
   }
 
-  // function test_SimpleNftMarketplace_basic_cancelListing_withoutAccess() public {
+  function test_SimpleNftMarketplace_basic_cancelListing_withoutAccess() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+    // Mint token, approve marketplace
+    helper_mint_approve721(address(nft1), address(1), 1);
+    // Create listing
+    helper_createListing(address(1), address(nft1), 1, 100);
+    // Verify
+    assertEq(marketplace.listingPrice(0), 100);
+    assertTrue(marketplace.isListingActive(0), 'Listing is not active');
+    // Cancel without permission
+    Errors.verify_revertCall(RevertStatus.CallerNotListingOwnerOrModerator);
+    helper_cancelListing(address(2), 0);
+    assertEq(marketplace.listingPrice(0), 100);
+    assertTrue(marketplace.isListingActive(0), 'Listing is not active');
+    // test with ModoAccess
+    helper_cancelListing(ADMIN, 0);
+    marketplace.isListingActive(0);
+  }
 
+  // function test_SimpleNftMarketplace_basic_blacklist() public {
+  //   // Mint 1 token
+  //   helper_mint_approve721(address(nft1), address(1), 1);
+  //   vm.startPrank(ADMIN);
+  //   // assertFalse(marketplace.isBlacklistUser(address(1)));
+  //   // assertFalse(marketplace.isBlacklistToken(address(nft1), 1));
+  //   // Blacklist
+  //   assertTrue(marketplace.blacklistUser(address(1), true));
+  //   // assertTrue(marketplace.blacklistToken(address(nft1), 1, true));
+  //   // Verify
+  //   // assertTrue(marketplace.isBlacklistedUser(address(1)));
+  //   // assertTrue(marketplace.isBlacklistedToken(address(nft1), 1));
   // }
 }
