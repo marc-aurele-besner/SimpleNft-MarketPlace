@@ -1,9 +1,10 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const Helper = require('./shared');
 
 describe('SimpleNftMarketplace', function () {
-  let Contract;
+  let Contract, token;
   let owner, lucie, seller, moderator, admin, nonAdmin, treasury, nonTreasury, nonModerator;
   let listingId;
 
@@ -17,17 +18,24 @@ describe('SimpleNftMarketplace', function () {
 
   describe('Controlable.sol', function () {
     // function transactionFee() public view returns (uint32)
-    // it("Should return the correct transactionFee", async function () {
+    it('Should return the correct initial transactionFee', async function () {
+      const expectedTransactionFee = 0;
+      const currentTransactionFee = await contract.transactionFee();
+      expect(currentTransactionFee).to.equal(expectedTransactionFee);
+    });
+
+    // it('Should return the correct transactionFee, equal to 1%', async function () {
     //   const expectedTransactionFee = 100000;
     //   const currentTransactionFee = await contract.transactionFee();
     //   expect(currentTransactionFee).to.equal(expectedTransactionFee);
     // });
 
     // // function token() public view returns (address tokenAddress)
-    // it("Should return the token address", async function () {
-    //   const currentTokenAddress = await contract.token();
-    //   expect(currentTokenAddress).to.equal(await contract._token());
-    // });
+    it('Should return the token address', async function () {
+      const mockERC20 = await Helper.deployERC20();
+      const currentTokenAddress = await contract.token();
+      expect(currentTokenAddress).to.equal(await contract._token());
+    });
 
     it('Should verify if administrator', async function () {
       const adminRole = contract.DEFAULT_ADMIN_ROLE();
