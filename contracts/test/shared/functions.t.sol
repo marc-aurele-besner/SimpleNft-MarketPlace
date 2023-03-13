@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import 'foundry-test-utility/contracts/utils/console.sol';
 import { CheatCodes } from 'foundry-test-utility/contracts/utils/cheatcodes.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
-
 import { Constants } from './constants.t.sol';
 import { Errors } from './errors.t.sol';
 import { TestStorage } from './testStorage.t.sol';
@@ -12,6 +11,12 @@ import { TestStorage } from './testStorage.t.sol';
 import { MockERC20 } from '../../mocks/MockERC20.sol';
 import { MockERC721 } from '../../mocks/MockERC721.sol';
 import { SimpleNftMarketplace } from '../../SimpleNftMarketplace.sol';
+
+interface IERC721 {
+  function mint(address sender, uint256 tokenId) external;
+
+  function approve(address to, uint256 tokenId) external;
+}
 
 contract Functions is Constants, Errors, TestStorage {
   SimpleNftMarketplace public marketplace;
@@ -128,9 +133,9 @@ contract Functions is Constants, Errors, TestStorage {
     marketplace.withdrawTransactionFee();
   }
 
-  function helper_mint_approve(nft, address sender, uint256 tokenId) public {
-    nft.mint(sender, tokenId);
+  function helper_mint_approve721(address nft, address sender, uint256 tokenId) public {
+    IERC721(nft).mint(sender, tokenId);
     vm.prank(sender);
-    nft.approve(marketplace.address, tokenId);
+    IERC721(nft).approve(address(marketplace), tokenId);
   }
 }
