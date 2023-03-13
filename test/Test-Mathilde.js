@@ -83,7 +83,6 @@ describe('SimpleNftMarketplace', function () {
       await expect(contract.connect(lucie).addRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
     });
 
-    //  function removeRole(bytes32 role, address account) external onlyAdmin returns (bool success) {
     it('Should remove a role to an account', async function () {
       const moderatorRole = contract.MODERATOR_ROLE();
       const adminRole = contract.DEFAULT_ADMIN_ROLE();
@@ -91,7 +90,6 @@ describe('SimpleNftMarketplace', function () {
       await contract.connect(admin).addRole(moderatorRole, account.address);
       const hasRole = await contract.hasRole(moderatorRole, account.address);
       expect(hasRole).to.equal(true);
-
       await contract.connect(admin).removeRole(moderatorRole, account.address);
       const hasRole1 = await contract.hasRole(moderatorRole, account.address);
       expect(hasRole1).to.equal(false);
@@ -108,8 +106,6 @@ describe('SimpleNftMarketplace', function () {
       const hasRole = await contract.hasRole(moderatorRole, account.address);
       await expect(contract.connect(account).removeRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
     });
-    //   // try to remove moderator role from moderatorRole (should fail)
-    // await expect(contract.connect(account).removeRole(moderatorRole, moderatorRole)).to.be.revertedWith('Controlable: Can not remove role from itself');
   });
 
   describe('ListingManager.sol', function () {
