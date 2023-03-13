@@ -17,18 +17,17 @@ describe('SimpleNftMarketplace', function () {
   });
 
   describe('Controlable.sol', function () {
-    // function transactionFee() public view returns (uint32)
     it('Should return the correct initial transactionFee', async function () {
       const expectedTransactionFee = 0;
       const currentTransactionFee = await contract.transactionFee();
       expect(currentTransactionFee).to.equal(expectedTransactionFee);
     });
-
-    // it('Should return the correct transactionFee, equal to 1%', async function () {
-    //   const expectedTransactionFee = 100000;
-    //   const currentTransactionFee = await contract.transactionFee();
-    //   expect(currentTransactionFee).to.equal(expectedTransactionFee);
-    // });
+    it('Should return the correct transactionFee, after change', async function () {
+      await contract.changeTransactionFee(100000);
+      const expectedTransactionFee = 100000;
+      const currentTransactionFee = await contract.transactionFee();
+      expect(currentTransactionFee).to.equal(expectedTransactionFee);
+    });
 
     // // function token() public view returns (address tokenAddress)
     it('Should return the token address', async function () {
