@@ -29,11 +29,16 @@ describe('SimpleNftMarketplace', function () {
       expect(currentTransactionFee).to.equal(expectedTransactionFee);
     });
 
-    // // function token() public view returns (address tokenAddress)
-    it('Should return the token address', async function () {
-      const mockERC20 = await Helper.deployERC20();
+    it('Should return a null token address before setting', async function () {
       const currentTokenAddress = await contract.token();
-      expect(currentTokenAddress).to.equal(await contract._token());
+      expect(currentTokenAddress).to.equal('0x0000000000000000000000000000000000000000');
+    });
+    it('Should return the correct token address', async function () {
+      const mockERC20 = await Helper.deployERC20();
+      await contract.changeToken(mockERC20.address);
+      const expectedTokenAddress = mockERC20.address;
+      const currentTokenAddress = await contract.token();
+      expect(currentTokenAddress).to.equal(expectedTokenAddress);
     });
 
     it('Should verify if administrator', async function () {
