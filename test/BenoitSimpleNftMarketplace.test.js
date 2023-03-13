@@ -1,5 +1,6 @@
 const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
+const { deploy_Mint_ApproveERC721 } = require('./shared');
 const Helper = require('./shared');
 
 describe('Test-Benoit', function () {
@@ -39,23 +40,26 @@ describe('Test-Benoit', function () {
     expect(await detail.buyer).to.be.equal(address0);
   });
 
+  it('does it return true if a user is blacklisted (should be)', async function () {
+    expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(false);
+    await contract.blacklistUser(user1.address, true);
+    expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(true);
+  });
+
+  it('does it return true if a user is not blacklisted (should not)', async function () {
+    expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(false);
+    await contract.blacklistUser(user1.address, false);
+    expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(false);
+  });
+
   //#37 read function tests
-
-  // it('does it return true is the listing is active (should be)', async () => {});
-
-  // it('does it return true is the listing is active (should be)', async () => {});
-
-  // it('does it return true if a user is blacklisted (should be)', async () => {});
 
   // it('does it return true if a token is blacklisted (should be)', async () => {});
 
   // it('does it return true if a contract is supported (should be)', async () => {});
 
-  // it('does it return the correct listing fee (should be)', async () => {});
   // // buy / sell
   // it('Does user can buy NFT (trade eth for token)(should be)', async function () {});
   // it('Does user can sell NFT (trade eth for token)(should be)', async function () {});
   // // WithDrawEth/ Send
-  // it('Does user can withDrawEth from the marketplace (should be)', async function () {});
-  // it('Does user can sendEth to the marketplace (should  be)', async function () {});
 });
