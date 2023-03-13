@@ -1,14 +1,15 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const Helper = require('./shared');
 
 describe('SimpleNftMarketplace', function () {
-  let Contract;
-  let owner, lucie, seller, moderator, admin, nonAdmin, treasury, nonTreasury, nonModerator;
+  let Contract, token;
+  let owner, lucie, seller, moderator, admin, nonAdmin, treasury, nonTreasury, nonModerator, account;
   let listingId;
 
   beforeEach(async function () {
-    [owner, lucie, seller, moderator, nonModerator, admin, nonAdmin, treasury, nonTreasury] = await ethers.getSigners();
+    [owner, lucie, seller, moderator, nonModerator, admin, nonAdmin, treasury, nonTreasury, account] = await ethers.getSigners();
     const Contract = await ethers.getContractFactory('SimpleNftMarketplace');
     contract = await Contract.deploy();
     await contract.deployed();
@@ -16,18 +17,29 @@ describe('SimpleNftMarketplace', function () {
   });
 
   describe('Controlable.sol', function () {
-    // function transactionFee() public view returns (uint32)
-    // it("Should return the correct transactionFee", async function () {
-    //   const expectedTransactionFee = 100000;
-    //   const currentTransactionFee = await contract.transactionFee();
-    //   expect(currentTransactionFee).to.equal(expectedTransactionFee);
-    // });
+    it('Should return the correct initial transactionFee', async function () {
+      const expectedTransactionFee = 0;
+      const currentTransactionFee = await contract.transactionFee();
+      expect(currentTransactionFee).to.equal(expectedTransactionFee);
+    });
+    it('Should return the correct transactionFee, after change', async function () {
+      await contract.changeTransactionFee(100000);
+      const expectedTransactionFee = 100000;
+      const currentTransactionFee = await contract.transactionFee();
+      expect(currentTransactionFee).to.equal(expectedTransactionFee);
+    });
 
-    // // function token() public view returns (address tokenAddress)
-    // it("Should return the token address", async function () {
-    //   const currentTokenAddress = await contract.token();
-    //   expect(currentTokenAddress).to.equal(await contract._token());
-    // });
+    it('Should return a null token address before setting', async function () {
+      const currentTokenAddress = await contract.token();
+      expect(currentTokenAddress).to.equal('0x0000000000000000000000000000000000000000');
+    });
+    it('Should return the correct token address', async function () {
+      const mockERC20 = await Helper.deployERC20();
+      await contract.changeToken(mockERC20.address);
+      const expectedTokenAddress = mockERC20.address;
+      const currentTokenAddress = await contract.token();
+      expect(currentTokenAddress).to.equal(expectedTokenAddress);
+    });
 
     it('Should verify if administrator', async function () {
       const adminRole = contract.DEFAULT_ADMIN_ROLE();
@@ -60,6 +72,57 @@ describe('SimpleNftMarketplace', function () {
     it('Should verify if non-Moderator', async function () {
       expect(await contract.connect(lucie).isModerator(lucie.address)).to.be.false;
       expect(await contract.connect(nonModerator).isModerator(nonModerator.address)).to.be.false;
+    });
+
+    it('Should add a role to an account', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      const adminRole = contract.DEFAULT_ADMIN_ROLE();
+
+      expect(await contract.connect(admin).isAdmin(admin.address)).to.be.false;
+      expect(await contract.connect(account).isModerator(account.address)).to.be.false;
+
+      await contract.grantRole(adminRole, admin.address);
+      await contract.connect(admin).addRole(moderatorRole, account.address);
+      const hasRole = await contract.hasRole(moderatorRole, account.address);
+      expect(hasRole).to.equal(true);
+    });
+    it('Should only be callable by an admin', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      await expect(contract.connect(lucie).addRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
+    });
+
+    it('Should remove a role to an account', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      const adminRole = contract.DEFAULT_ADMIN_ROLE();
+
+      expect(await contract.connect(admin).isAdmin(admin.address)).to.be.false;
+      expect(await contract.connect(account).isModerator(account.address)).to.be.false;
+
+      await contract.grantRole(adminRole, admin.address);
+      await contract.connect(admin).addRole(moderatorRole, account.address);
+      const hasRole = await contract.hasRole(moderatorRole, account.address);
+
+      expect(hasRole).to.equal(true);
+
+      await contract.connect(admin).removeRole(moderatorRole, account.address);
+      const hasRole1 = await contract.hasRole(moderatorRole, account.address);
+      expect(hasRole1).to.equal(false);
+    });
+    it('Should only be callable by an admin', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      await expect(contract.connect(lucie).removeRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
+    });
+    it('Can not remove role from itself, only admin', async function () {
+      const moderatorRole = contract.MODERATOR_ROLE();
+      const adminRole = contract.DEFAULT_ADMIN_ROLE();
+
+      expect(await contract.connect(admin).isAdmin(admin.address)).to.be.false;
+      expect(await contract.connect(account).isModerator(account.address)).to.be.false;
+
+      await contract.grantRole(adminRole, admin.address);
+      await contract.connect(admin).addRole(moderatorRole, account.address);
+      const hasRole = await contract.hasRole(moderatorRole, account.address);
+      await expect(contract.connect(account).removeRole(moderatorRole, account.address)).to.be.revertedWith(Helper.errors.CALLER_NOT_ADMIN);
     });
   });
 
