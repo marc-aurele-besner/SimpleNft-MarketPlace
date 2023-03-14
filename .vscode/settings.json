@@ -5,7 +5,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.workingDirectories": [{ "mode": "auto" }],
   "javascript.format.enable": false,
-  "window.zoomLevel": 2,
+  "window.zoomLevel": 1,
   "editor.tabSize": 2,
   "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
   "editor.formatOnSave": true
