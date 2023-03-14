@@ -186,4 +186,8 @@ contract Functions is Constants, Errors, TestStorage {
     vm.prank(sender);
     token.approve(address(marketplace), amount);
   }
+
+  function helper_blacklistUser(address userAddress, bool set) public {
+    SimpleNftMarketplace(address(this)).blacklistUser(userAddress, set);
+  }
 }
