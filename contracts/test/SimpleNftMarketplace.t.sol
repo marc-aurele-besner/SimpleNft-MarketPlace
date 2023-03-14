@@ -74,6 +74,6 @@ contract SimpleNftMarketplace_test is Helper {
 
     help_moveBlockAndTimeFoward(1, 100);
 
-    helper_buyListing(address(2), 0, RevertStatus.Erc20InsuffocoemtAllowance);
+    helper_buyListing(address(2), 0, RevertStatus.Erc20InsufficientAllowance);
   }
 }

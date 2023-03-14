@@ -31,7 +31,7 @@ contract Errors is DSTest {
     ContractIsInitializing,
     ContractAlreasyInitialized,
     Erc721InvalidTokenId,
-    Erc20InsuffocoemtAllowance
+    Erc20InsufficientAllowance
   }
 
   // Associate your error with a revert message and add it to the mapping.
@@ -54,7 +54,7 @@ contract Errors is DSTest {
     _errors[RevertStatus.ContractIsInitializing] = 'Initializable: contract is initializing';
     _errors[RevertStatus.ContractAlreasyInitialized] = 'Initializable: contract is already initialized';
     _errors[RevertStatus.Erc721InvalidTokenId] = 'ERC721: invalid token ID';
-    _errors[RevertStatus.Erc20InsuffocoemtAllowance] = 'ERC20: insufficient allowance';
+    _errors[RevertStatus.Erc20InsufficientAllowance] = 'ERC20: insufficient allowance';
   }
 
   // Return the error message associated with the error.
