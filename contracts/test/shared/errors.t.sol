@@ -15,6 +15,8 @@ contract Errors is DSTest {
     SkipValidation,
     InvalidSignature,
     CallerNotListingOwnerOrModerator,
+    ListingNotActive,
+    CallerNotSeller,
     CallerNotAdmin,
     CallerNotModerator,
     CallerNotTreasury,
@@ -34,6 +36,8 @@ contract Errors is DSTest {
   constructor() {
     _errors[RevertStatus.InvalidSignature] = 'SimpleNftMarketplace: invalid signature';
     _errors[RevertStatus.CallerNotListingOwnerOrModerator] = 'SimpleNftMarketplace: Only listing owner or moderator';
+    _errors[RevertStatus.CallerNotSeller] = 'SimpleNftMarketplace: Only seller';
+    _errors[RevertStatus.ListingNotActive] = 'SimpleNftMarketplace: Listing is not active';
     _errors[RevertStatus.CallerNotAdmin] = 'Controlable: Only admin';
     _errors[RevertStatus.CallerNotModerator] = 'Controlable: Only moderator';
     _errors[RevertStatus.CallerNotTreasury] = 'Controlable: Only treasury';
