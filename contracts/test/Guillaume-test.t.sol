@@ -94,4 +94,15 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
   function test_SimpleNftMarketplace_basic_blacklistUser() public {
     helper_blacklistUser(MODERATOR, USER, true); // ajouter USER à la liste noire
   }
+
+  function test_SimpleNftMarketplace_basic_blacklistUser_admin() public {
+    helper_blacklistUser(ADMIN, address(1), true);
+    assertTrue(marketplace.isBlacklistedUser(address(1)));
+  }
+
+  function test_SimpleNftMarketplace_basic_blacklistUser_moderator() public {
+    verify_revertCall(RevertStatus.CallerNotModerator);
+    helper_blacklistUser(address(2), address(1), true);
+    assertTrue(!marketplace.isBlacklistedUser(address(1)));
+  }
 }
