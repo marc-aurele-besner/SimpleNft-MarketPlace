@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import 'foundry-test-utility/contracts/utils/console.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
+import { AccessControlUpgradeable } from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import { Helper } from './shared/helper.t.sol';
 import { Errors } from './shared/errors.t.sol';
 
@@ -26,7 +27,7 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
   }
 
   function test_SimpleNftMarketplace_basic_changeSupportedContract_notAdmin() public {
-    helper_changeSupportedContract(address(2), address(nft1), true, RevertStatus.OnlyAdmin);
+    helper_changeSupportedContract(address(2), address(nft1), true, RevertStatus.CallerNotAdmin);
   }
 
   function test_SimpleNftMarketplace_basic_changeToken() public {
@@ -35,7 +36,7 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
 
   function test_SimpleNftMarketplace_basic_changeToken_notAdmin() public {
     IERC20Upgradeable newToken = IERC20Upgradeable(address(0x123));
-    Errors.RevertStatus expectedError = Errors.RevertStatus.OnlyAdmin;
+    Errors.RevertStatus expectedError = Errors.RevertStatus.CallerNotAdmin;
     helper_changeToken(address(2), newToken, expectedError);
   }
 
@@ -43,5 +44,4 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
     helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
     helper_changeSupportedContract(ADMIN, address(nft1), true);
   }
-
 }
