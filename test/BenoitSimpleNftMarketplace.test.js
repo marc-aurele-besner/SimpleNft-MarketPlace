@@ -1,6 +1,5 @@
 const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
-const { deploy_Mint_ApproveERC721 } = require('./shared');
 const Helper = require('./shared');
 
 describe('Test-Benoit', function () {
@@ -72,7 +71,7 @@ describe('Test-Benoit', function () {
     await contract.connect(user2)['buyListing(uint256)'](0);
   });
 
-  it.only('Does user 2 can buy NFT to user 1 if his balance is insufficient (should not)', async function () {
+  it('Does user 2 can buy NFT to user 1 if his balance is insufficient (should not)', async function () {
     const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
     await contract.changeSupportedContract(mockERC721.address, true);
 
