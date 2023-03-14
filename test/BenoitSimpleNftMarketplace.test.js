@@ -1,6 +1,5 @@
 const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
-const { deploy_Mint_ApproveERC721 } = require('./shared');
 const Helper = require('./shared');
 
 describe('Test-Benoit', function () {
@@ -50,6 +49,37 @@ describe('Test-Benoit', function () {
     expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(false);
     await contract.blacklistUser(user1.address, false);
     expect(await contract.isBlacklistedUser(user1.address)).to.be.equal(false);
+  });
+
+  it('does it return true if a token is blacklisted (should be)', async function () {
+    const mockERC721 = await Helper.deployERC721();
+    await Helper.mintERC721(mockERC721, user1.address, 1);
+    expect(await contract.isBlacklistedToken(mockERC721.address, 1)).to.be.equal(false);
+    await contract.blacklistToken(mockERC721.address, 1, true);
+    expect(await contract.isBlacklistedToken(mockERC721.address, 1)).to.be.equal(true);
+  });
+
+  it('Does user 2 can buy NFT to user 1 (should be)', async function () {
+    const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
+    await contract.changeSupportedContract(mockERC721.address, true);
+
+    await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 50);
+
+    const token = await Helper.deploy_Mint_ApproveERC20(user2, contract.address, 60);
+    await contract.changeToken(token.address);
+    expect(await contract.connect(user2).callStatic['buyListing(uint256)'](0)).to.be.equal(true);
+    await contract.connect(user2)['buyListing(uint256)'](0);
+  });
+
+  it('Does user 2 can buy NFT to user 1 if his balance is insufficient (should not)', async function () {
+    const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
+    await contract.changeSupportedContract(mockERC721.address, true);
+
+    await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 50);
+
+    const token = await Helper.deploy_Mint_ApproveERC20(user2, contract.address, 40);
+    await contract.changeToken(token.address);
+    await expect(contract.connect(user2).callStatic['buyListing(uint256)'](0)).to.be.reverted;
   });
 
   //#37 read function tests
