@@ -87,6 +87,7 @@ abstract contract Controlable is AccessControlUpgradeable {
     } else {
       blacklistUser[userAddress] = false;
     }
+    success = true;
   }
 
   function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted) {

@@ -59,7 +59,7 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     // Cancel
     helper_cancelListing(address(1), 0);
     assertEq(marketplace.listingPrice(0), 0);
-    marketplace.isListingActive(0);
+    assertTrue(!marketplace.isListingActive(0), 'Listing is still active');
   }
 
   function test_SimpleNftMarketplace_basic_cancelListing_withoutAccess() public {
@@ -79,20 +79,42 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     assertTrue(marketplace.isListingActive(0), 'Listing is not active');
     // test with ModoAccess
     helper_cancelListing(ADMIN, 0);
-    marketplace.isListingActive(0);
+    assertTrue(!marketplace.isListingActive(0), 'Listing is still active');
   }
 
-  // function test_SimpleNftMarketplace_basic_blacklist() public {
-  //   // Mint 1 token
-  //   helper_mint_approve721(address(nft1), address(1), 1);
-  //   vm.startPrank(ADMIN);
-  //   // assertFalse(marketplace.isBlacklistUser(address(1)));
-  //   // assertFalse(marketplace.isBlacklistToken(address(nft1), 1));
-  //   // Blacklist
-  //   assertTrue(marketplace.blacklistUser(address(1), true));
-  //   // assertTrue(marketplace.blacklistToken(address(nft1), 1, true));
-  //   // Verify
-  //   // assertTrue(marketplace.isBlacklistedUser(address(1)));
-  //   // assertTrue(marketplace.isBlacklistedToken(address(nft1), 1));
-  // }
+  function test_SimpleNftMarketplace_basic_blacklist() public {
+    // Mint 1 token
+    helper_mint_approve721(address(nft1), address(1), 1);
+    assertTrue(!marketplace.isBlacklistedUser(address(1)), 'User is blacklisted');
+    assertTrue(!marketplace.isBlacklistedToken(address(nft1), 1), 'Token is blacklisted');
+    // Blacklist
+    vm.startPrank(ADMIN);
+    assertTrue(marketplace.blacklistUser(address(1), true), 'blacklistUser failed');
+    assertTrue(marketplace.blacklistToken(address(nft1), 1, true), 'blacklistToken failed');
+    vm.stopPrank();
+    // Verify
+    assertTrue(marketplace.isBlacklistedUser(address(1)), 'User is not blacklisted');
+    assertTrue(marketplace.isBlacklistedToken(address(nft1), 1), 'Token is not blacklisted');
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_with_blacklist() public {
+    // Setup
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+    helper_changeSupportedContract(ADMIN, address(nft2), true);
+    // Mint 2 token
+    helper_mint_approve721(address(nft1), address(1), 1);
+    helper_mint_approve721(address(nft2), address(2), 1);
+    // Blacklist 1 user & 1 token
+    vm.startPrank(ADMIN);
+    assertTrue(marketplace.blacklistUser(address(1), true), 'blacklistUser failed');
+    assertTrue(marketplace.blacklistToken(address(nft2), 1, true), 'blacklistToken failed');
+    vm.stopPrank();
+    // // Verifiy blacklist is up
+    assertTrue(marketplace.isBlacklistedUser(address(1)), 'User is not blacklisted');
+    assertTrue(marketplace.isBlacklistedToken(address(nft2), 1), 'Token is not blacklisted');
+    // Create listing with User blacklisted
+    helper_createListing(address(1), address(nft1), 1, 100, RevertStatus.UserBlacklisted);
+    // // Create listing with Token blacklisted
+    helper_createListing(address(2), address(nft2), 1, 100, RevertStatus.TokenBlacklisted);
+  }
 }
