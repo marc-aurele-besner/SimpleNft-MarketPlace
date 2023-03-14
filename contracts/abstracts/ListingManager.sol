@@ -57,6 +57,7 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     Listing memory listing = _listings[listingId];
     require(listing.buyTimestamp == 0, 'ListingManager: Listing already sold');
+    require(_listings[listingId].salePrice > 0, 'ListingManager: Sell price must be above zero');
 
     uint256 listingFee = _calculateListingFee(listingId);
     uint256 amount = listing.salePrice - listingFee;
@@ -71,6 +72,22 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
     _accumulatedTransactionFee += listingFee;
 
     emit Sale(listingId, buyer);
+    return true;
+  }
+
+  function _editListingPrice(uint256 listingId, uint256 newPrice) internal returns (bool) {
+    _listings[listingId].salePrice = newPrice;
+    return true;
+  }
+
+  function _cancelListing(uint256 listingId) internal returns (bool) {
+    address tokenContract = _listings[listingId].tokenContract;
+    address seller = _listings[listingId].seller;
+    uint256 tokenId = _listings[listingId].tokenId;
+
+    _listings[listingId].salePrice = 0;
+
+    IERC721Upgradeable(tokenContract).safeTransferFrom(address(this), seller, tokenId);
     return true;
   }
 

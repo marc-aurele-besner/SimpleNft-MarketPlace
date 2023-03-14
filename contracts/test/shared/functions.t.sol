@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import 'foundry-test-utility/contracts/utils/console.sol';
 import { CheatCodes } from 'foundry-test-utility/contracts/utils/cheatcodes.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
-
 import { Constants } from './constants.t.sol';
 import { Errors } from './errors.t.sol';
 import { TestStorage } from './testStorage.t.sol';
@@ -12,6 +11,18 @@ import { TestStorage } from './testStorage.t.sol';
 import { MockERC20 } from '../../mocks/MockERC20.sol';
 import { MockERC721 } from '../../mocks/MockERC721.sol';
 import { SimpleNftMarketplace } from '../../SimpleNftMarketplace.sol';
+
+interface IERC721 {
+  function mint(address sender, uint256 tokenId) external;
+
+  function approve(address to, uint256 tokenId) external;
+}
+
+interface IERC20 {
+  function mint(address sender, uint256 amount) external;
+
+  function approve(address to, uint256 amount) external;
+}
 
 contract Functions is Constants, Errors, TestStorage {
   SimpleNftMarketplace public marketplace;
@@ -56,14 +67,45 @@ contract Functions is Constants, Errors, TestStorage {
   event Sale(uint256 listingId, address buyer);
   event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
-  function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice) public {
+  function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
+    verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.createListing(tokenContract, tokenId, salePrice);
+
+    // Verify
+    if (revertType_ == RevertStatus.Success) {
+      assertEq(marketplace.listingPrice(0), 100);
+      assertTrue(marketplace.isListingActive(0), 'Functions: isListingActive');
+    }
+  }
+
+  function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice) public {
+    helper_createListing(sender, tokenContract, tokenId, salePrice, RevertStatus.Success);
+  }
+
+  function helper_buyListing(address sender, uint256 listingId, RevertStatus revertType_) public {
+    verify_revertCall(revertType_);
+    vm.prank(sender);
+    marketplace.buyListing(listingId);
   }
 
   function helper_buyListing(address sender, uint256 listingId) public {
+    helper_buyListing(sender, listingId, RevertStatus.Success);
+  }
+
+  function helper_createListing(
+    address sender,
+    address tokenContract,
+    uint256 tokenId,
+    uint256 salePrice,
+    address seller,
+    uint8 v,
+    bytes32 r,
+    bytes32 s,
+    RevertStatus revertType_
+  ) public {
     vm.prank(sender);
-    marketplace.buyListing(listingId);
+    marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
   }
 
   function helper_createListing(
@@ -76,8 +118,13 @@ contract Functions is Constants, Errors, TestStorage {
     bytes32 r,
     bytes32 s
   ) public {
+    helper_createListing(sender, tokenContract, tokenId, salePrice, seller, v, r, s, RevertStatus.Success);
+  }
+
+  function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s, RevertStatus revertType_) public {
+    verify_revertCall(revertType_);
     vm.prank(sender);
-    marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
+    marketplace.buyListing(listingId, buyer, v, r, s);
   }
 
   function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) public {

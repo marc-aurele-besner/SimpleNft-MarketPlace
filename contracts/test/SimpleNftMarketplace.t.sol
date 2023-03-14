@@ -37,6 +37,43 @@ contract SimpleNftMarketplace_test is Helper {
     helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
     helper_changeSupportedContract(ADMIN, address(nft1), true);
 
-    // Mint token, approve marketplace, create listing
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_without_token() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_createListing(address(1), address(nft1), 1, 100, RevertStatus.Erc721InvalidTokenId);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(address(2), 100);
+
+    helper_buyListing(address(2), 0);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_without_allowance() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_buyListing(address(2), 0, RevertStatus.Erc20InsuffocoemtAllowance);
   }
 }
