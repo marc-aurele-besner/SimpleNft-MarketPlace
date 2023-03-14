@@ -15,6 +15,8 @@ contract Errors is DSTest {
     SkipValidation,
     InvalidSignature,
     CallerNotListingOwnerOrModerator,
+    ListingNotActive,
+    CallerNotSeller,
     CallerNotAdmin,
     CallerNotModerator,
     CallerNotTreasury,
@@ -27,13 +29,17 @@ contract Errors is DSTest {
     OnlyRenounceRolesForSelf,
     ContractIsNotInitializing,
     ContractIsInitializing,
-    ContractAlreasyInitialized
+    ContractAlreasyInitialized,
+    Erc721InvalidTokenId,
+    Erc20InsuffocoemtAllowance
   }
 
   // Associate your error with a revert message and add it to the mapping.
   constructor() {
     _errors[RevertStatus.InvalidSignature] = 'SimpleNftMarketplace: invalid signature';
     _errors[RevertStatus.CallerNotListingOwnerOrModerator] = 'SimpleNftMarketplace: Only listing owner or moderator';
+    _errors[RevertStatus.CallerNotSeller] = 'SimpleNftMarketplace: Only seller';
+    _errors[RevertStatus.ListingNotActive] = 'SimpleNftMarketplace: Listing is not active';
     _errors[RevertStatus.CallerNotAdmin] = 'Controlable: Only admin';
     _errors[RevertStatus.CallerNotModerator] = 'Controlable: Only moderator';
     _errors[RevertStatus.CallerNotTreasury] = 'Controlable: Only treasury';
@@ -47,6 +53,8 @@ contract Errors is DSTest {
     _errors[RevertStatus.ContractIsNotInitializing] = 'Initializable: contract is not initializing';
     _errors[RevertStatus.ContractIsInitializing] = 'Initializable: contract is initializing';
     _errors[RevertStatus.ContractAlreasyInitialized] = 'Initializable: contract is already initialized';
+    _errors[RevertStatus.Erc721InvalidTokenId] = 'ERC721: invalid token ID';
+    _errors[RevertStatus.Erc20InsuffocoemtAllowance] = 'ERC20: insufficient allowance';
   }
 
   // Return the error message associated with the error.
