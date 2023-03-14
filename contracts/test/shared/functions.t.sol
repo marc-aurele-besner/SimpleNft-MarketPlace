@@ -152,13 +152,13 @@ contract Functions is Constants, Errors, TestStorage {
   }
 
   function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported, RevertStatus revertType) public {
-    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isSupportedContract(address(nft1)));
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isSupportedContract(contractAddress));
 
     verify_revertCall(revertType);
     vm.prank(sender);
     marketplace.changeSupportedContract(contractAddress, isSupported);
 
-    if (revertType == RevertStatus.Success) assertTrue(marketplace.isSupportedContract(address(nft1)));
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isSupportedContract(contractAddress));
   }
 
   function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported) public {
