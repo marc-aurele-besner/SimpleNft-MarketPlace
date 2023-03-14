@@ -85,16 +85,12 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
   function test_SimpleNftMarketplace_basic_blacklist() public {
     // Mint 1 token
     helper_mint_approve721(address(nft1), address(1), 1);
-    assertTrue(!marketplace.isBlacklistedUser(address(1)), 'User is blacklisted');
-    assertTrue(!marketplace.isBlacklistedToken(address(nft1), 1), 'Token is blacklisted');
-    // Blacklist
-    vm.startPrank(ADMIN);
-    assertTrue(marketplace.blacklistUser(address(1), true), 'blacklistUser failed');
-    assertTrue(marketplace.blacklistToken(address(nft1), 1, true), 'blacklistToken failed');
-    vm.stopPrank();
-    // Verify
-    assertTrue(marketplace.isBlacklistedUser(address(1)), 'User is not blacklisted');
-    assertTrue(marketplace.isBlacklistedToken(address(nft1), 1), 'Token is not blacklisted');
+    // Blacklist without access
+    helper_blacklist_user(address(2), address(1), true, RevertStatus.CallerNotModerator);
+    helper_blacklist_token(address(2), address(nft1), 1, true, RevertStatus.CallerNotModerator);
+    // Blacklist with access
+    helper_blacklist_user(ADMIN, address(1), true);
+    helper_blacklist_token(ADMIN, address(nft1), 1, true);
   }
 
   function test_SimpleNftMarketplace_basic_createListing_with_blacklist() public {
@@ -105,16 +101,94 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     helper_mint_approve721(address(nft1), address(1), 1);
     helper_mint_approve721(address(nft2), address(2), 1);
     // Blacklist 1 user & 1 token
-    vm.startPrank(ADMIN);
-    assertTrue(marketplace.blacklistUser(address(1), true), 'blacklistUser failed');
-    assertTrue(marketplace.blacklistToken(address(nft2), 1, true), 'blacklistToken failed');
-    vm.stopPrank();
-    // // Verifiy blacklist is up
-    assertTrue(marketplace.isBlacklistedUser(address(1)), 'User is not blacklisted');
-    assertTrue(marketplace.isBlacklistedToken(address(nft2), 1), 'Token is not blacklisted');
+    helper_blacklist_user(ADMIN, address(1), true);
+    helper_blacklist_token(ADMIN, address(nft2), 1, true);
     // Create listing with User blacklisted
     helper_createListing(address(1), address(nft1), 1, 100, RevertStatus.UserBlacklisted);
-    // // Create listing with Token blacklisted
+    // Create listing with Token blacklisted
     helper_createListing(address(2), address(nft2), 1, 100, RevertStatus.TokenBlacklisted);
   }
+
+  function test_SimpleNftMarketplace_basic_createListing_without_token() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_createListing(address(1), address(nft1), 1, 100, RevertStatus.Erc721InvalidTokenId);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(address(2), 100);
+
+    helper_buyListing(address(2), 0);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_without_allowance() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_buyListing(address(2), 0, RevertStatus.Erc20InsufficientAllowance);
+  }
+
+  function test_SimpleNftMarketplace_basic_editListingPrice() public {
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    assertEq(marketplace.listingPrice(0), 100);
+    vm.prank(ADMIN);
+    Errors.verify_revertCall(RevertStatus.CallerNotSeller);
+    marketplace.editListingPrice(0, 50);
+    assertEq(marketplace.listingPrice(0), 100);
+
+    vm.prank(address(1));
+    assertTrue(marketplace.editListingPrice(0, 50), 'Edit price did not work');
+    assertEq(marketplace.listingPrice(0), 50);
+  }
+
+  // function test_SimpleNftMarketplace_transactionFee() public {
+  //   helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+  //   helper_changeSupportedContract(ADMIN, address(nft1), true);
+  //   helper_changeSupportedContract(ADMIN, address(nft2), true);
+
+  //   helper_mint_approve721(address(nft1), address(1), 1);
+  //   helper_mint_approve721(address(nft2), address(1), 1);
+
+  //   assertEq(marketplace.transactionFee(), 0);
+  // Errors.verify_revertCall(RevertStatus.CallerNotAdmin);
+  // assertTrue(marketplace.changeTransactionFee(marketplace.BASE_TRANSACTION_FEE()));
+
+  // vm.prank(ADMIN);
+  // assertTrue(marketplace.changeTransactionFee(marketplace.BASE_TRANSACTION_FEE()));
+  // assertEq(marketplace.transactionFee(), 100_000);
+
+  // helper_createListing(address(1), address(nft1), 1, 100);
+  // assertEq(marketplace.calculateListingFee(0), 1);
+
+  // help_moveBlockAndTimeFoward(1, 100);
+
+  // helper_mint_approve20(address(2), 200);
+
+  // helper_buyListing(address(2), 0);
+
+  // assertEq(marketplace.accumulatedFees(), 1);
+  // }
 }
