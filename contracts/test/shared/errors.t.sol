@@ -27,7 +27,8 @@ contract Errors is DSTest {
     OnlyRenounceRolesForSelf,
     ContractIsNotInitializing,
     ContractIsInitializing,
-    ContractAlreasyInitialized
+    ContractAlreasyInitialized,
+    OnlyAdmin
   }
 
   // Associate your error with a revert message and add it to the mapping.
