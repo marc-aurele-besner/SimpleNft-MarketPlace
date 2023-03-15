@@ -76,4 +76,34 @@ contract SimpleNftMarketplace_test is Helper {
 
     helper_buyListing(address(2), 0, RevertStatus.Erc20InsufficientAllowance);
   }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_with_signatures() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), SIGNER1, 1);
+
+    bytes32 domainSeparator = keccak256(
+      abi.encode(
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+        keccak256(bytes(CONTRACT_NAME)),
+        keccak256(bytes(CONTRACT_VERSION)),
+        block.chainid,
+        address(marketplace)
+      )
+    );
+    bytes32 structHash = keccak256(
+      abi.encode(keccak256('CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)'), address(nft1), 1, 100, SIGNER1)
+    );
+
+    (uint8 v, bytes32 r, bytes32 s) = signature_signHash(SIGNER1_PRIVATEKEY, SignatureType.eip712, domainSeparator, structHash);
+
+    helper_createListing(address(1), address(nft1), 1, 100, SIGNER1, v, r, s);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(address(2), 100);
+
+    helper_buyListing(address(2), 0);
+  }
 }
