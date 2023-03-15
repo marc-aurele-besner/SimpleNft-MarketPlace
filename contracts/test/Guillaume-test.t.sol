@@ -43,5 +43,77 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
   function test_SimpleNftMarketplace_basic_createListing() public {
     helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
     helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_without_token() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_createListing(address(1), address(nft1), 1, 100, RevertStatus.Erc721InvalidTokenId);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(address(2), 100);
+
+    helper_buyListing(address(2), 0);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_without_allowance() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_buyListing(address(2), 0, RevertStatus.Erc20InsuffocoemtAllowance);
+  }
+
+  // je ne suis pas sûr de cette fonction
+  function test_SimpleNftMarketplace_basic_checkValidAddress() public pure {
+    // Adresse valide
+    address adresseValide = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+    assert(adresseValide != address(0));
+  }
+
+  function test_SimpleNftMarketplace_basic_blacklistUser() public {
+    helper_blacklistUser(MODERATOR, USER, true); // ajouter USER à la liste noire
+  }
+
+  function test_SimpleNftMarketplace_basic_blacklistUser_admin() public {
+    helper_blacklistUser(ADMIN, address(1), true);
+    assertTrue(marketplace.isBlacklistedUser(address(1)));
+  }
+
+  function test_SimpleNftMarketplace_basic_blacklistUser_moderator() public {
+    verify_revertCall(RevertStatus.CallerNotModerator);
+    helper_blacklistUser(address(2), address(1), true);
+    assertTrue(!marketplace.isBlacklistedUser(address(1)));
+  }
+  
+  function test_SimpleNftMarketplace_basic_blacklistToken_admin() public {
+    helper_blacklistToken(ADMIN, address(1), 0, true);
+    assertTrue(marketplace.isBlacklistedToken(address(1), 0));
+  }
+
+  function test_SimpleNftMarketplace_basic_blacklistToken_moderator() public {
+    verify_revertCall(RevertStatus.CallerNotModerator);
+    helper_blacklistToken(address(2), address(1), 0, true);
+    assertTrue(!marketplace.isBlacklistedToken(address(1), 0));
   }
 }

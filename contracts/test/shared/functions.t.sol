@@ -153,13 +153,13 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   }
 
   function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported, RevertStatus revertType) public {
-    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isSupportedContract(address(nft1)));
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isSupportedContract(contractAddress));
 
     verify_revertCall(revertType);
     vm.prank(sender);
     marketplace.changeSupportedContract(contractAddress, isSupported);
 
-    if (revertType == RevertStatus.Success) assertTrue(marketplace.isSupportedContract(address(nft1)));
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isSupportedContract(contractAddress));
   }
 
   function helper_changeSupportedContract(address sender, address contractAddress, bool isSupported) public {
@@ -186,5 +186,33 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     token.mint(sender, amount);
     vm.prank(sender);
     token.approve(address(marketplace), amount);
+  }
+
+  function helper_blacklist_user(address sender, address userAddress, bool set, RevertStatus revertType) public {
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isBlacklistedUser(userAddress));
+
+    verify_revertCall(revertType);
+    vm.prank(sender);
+    marketplace.blacklistUser(userAddress, set);
+
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isBlacklistedUser(userAddress));
+  }
+
+  function helper_blacklist_user(address sender, address userAddress, bool set) public {
+    helper_blacklist_user(sender, userAddress, set, RevertStatus.Success);
+  }
+
+  function helper_blacklist_token(address sender, address contractAddress, uint256 tokenId, bool set, RevertStatus revertType) public {
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isBlacklistedToken(contractAddress, tokenId));
+
+    verify_revertCall(revertType);
+    vm.prank(sender);
+    marketplace.blacklistToken(contractAddress, tokenId, set);
+
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isBlacklistedToken(contractAddress, tokenId));
+  }
+
+  function helper_blacklist_token(address sender, address contractAddress, uint256 tokenId, bool set) public {
+    helper_blacklist_token(sender, contractAddress, tokenId, set, RevertStatus.Success);
   }
 }

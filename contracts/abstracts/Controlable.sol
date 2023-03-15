@@ -87,6 +87,7 @@ abstract contract Controlable is AccessControlUpgradeable {
     } else {
       blacklistUser[userAddress] = false;
     }
+    success = true;
   }
 
   function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted) {
@@ -99,6 +100,10 @@ abstract contract Controlable is AccessControlUpgradeable {
 
   function _isSupportedContract(address tokenContract) internal view returns (bool isSupported) {
     return supportedContracts[tokenContract];
+  }
+
+  function accumulatedFees() public view onlyAdmin returns (uint256) {
+    return _accumulatedTransactionFee;
   }
 
   function transactionFee() public view returns (uint32) {
