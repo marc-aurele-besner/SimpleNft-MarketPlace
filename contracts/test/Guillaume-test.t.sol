@@ -105,4 +105,15 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
     helper_blacklistUser(address(2), address(1), true);
     assertTrue(!marketplace.isBlacklistedUser(address(1)));
   }
+  
+  function test_SimpleNftMarketplace_basic_blacklistToken_admin() public {
+    helper_blacklistToken(ADMIN, address(1), 0, true);
+    assertTrue(marketplace.isBlacklistedToken(address(1), 0));
+  }
+
+  function test_SimpleNftMarketplace_basic_blacklistToken_moderator() public {
+    verify_revertCall(RevertStatus.CallerNotModerator);
+    helper_blacklistToken(address(2), address(1), 0, true);
+    assertTrue(!marketplace.isBlacklistedToken(address(1), 0));
+  }
 }

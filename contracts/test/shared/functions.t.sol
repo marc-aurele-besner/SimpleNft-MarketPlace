@@ -187,10 +187,13 @@ contract Functions is Constants, Errors, TestStorage {
     token.approve(address(marketplace), amount);
   }
 
-
-
   function helper_blacklistUser(address sender, address userAddress, bool set) public {
-  vm.prank(sender);
-  marketplace.blacklistUser(userAddress, set);
+    vm.prank(sender);
+    marketplace.blacklistUser(userAddress, set);
+  }
+
+  function helper_blacklistToken(address sender, address tokenContract, uint256 tokenId, bool isBlackListed) public {
+    vm.prank(sender);
+    marketplace.blacklistToken(tokenContract, tokenId, isBlackListed);
   }
 }
