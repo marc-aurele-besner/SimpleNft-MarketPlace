@@ -102,6 +102,10 @@ abstract contract Controlable is AccessControlUpgradeable {
     return supportedContracts[tokenContract];
   }
 
+  function accumulatedFees() public view onlyAdmin returns (uint256) {
+    return _accumulatedTransactionFee;
+  }
+
   function transactionFee() public view returns (uint32) {
     return _transactionFee;
   }

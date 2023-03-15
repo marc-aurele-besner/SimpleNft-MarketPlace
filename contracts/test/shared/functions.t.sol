@@ -187,13 +187,31 @@ contract Functions is Constants, Errors, TestStorage {
     token.approve(address(marketplace), amount);
   }
 
-  function helper_blacklistUser(address sender, address userAddress, bool set) public {
+  function helper_blacklist_user(address sender, address userAddress, bool set, RevertStatus revertType) public {
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isBlacklistedUser(userAddress));
+
+    verify_revertCall(revertType);
     vm.prank(sender);
     marketplace.blacklistUser(userAddress, set);
+
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isBlacklistedUser(userAddress));
   }
 
-  function helper_blacklistToken(address sender, address tokenContract, uint256 tokenId, bool isBlackListed) public {
+  function helper_blacklist_user(address sender, address userAddress, bool set) public {
+    helper_blacklist_user(sender, userAddress, set, RevertStatus.Success);
+  }
+
+  function helper_blacklist_token(address sender, address contractAddress, uint256 tokenId, bool set, RevertStatus revertType) public {
+    if (revertType == RevertStatus.Success) assertTrue(!marketplace.isBlacklistedToken(contractAddress, tokenId));
+
+    verify_revertCall(revertType);
     vm.prank(sender);
-    marketplace.blacklistToken(tokenContract, tokenId, isBlackListed);
+    marketplace.blacklistToken(contractAddress, tokenId, set);
+
+    if (revertType == RevertStatus.Success) assertTrue(marketplace.isBlacklistedToken(contractAddress, tokenId));
+  }
+
+  function helper_blacklist_token(address sender, address contractAddress, uint256 tokenId, bool set) public {
+    helper_blacklist_token(sender, contractAddress, tokenId, set, RevertStatus.Success);
   }
 }
