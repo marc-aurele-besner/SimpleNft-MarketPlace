@@ -162,4 +162,68 @@ describe('Test-Benoit', function () {
     await expect(contract.connect(user1).changeTransactionFee(15)).to.be.reverted;
     await expect(contract.connect(user2).changeTransactionFee(15)).to.be.reverted;
   });
+
+  it('Is Seller able to editListingPrice (should be). Is User/Moderator/Admin able to editListingPrice (should not)', async function () {
+    const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
+    await contract.changeSupportedContract(mockERC721.address, true);
+    expect(await contract.isSupportedContract(mockERC721.address)).to.be.equal(true);
+
+    await contract.connect(user1)['createListing(address,uint256,uint256)'](mockERC721.address, 1, 50);
+    expect(await contract.listingPrice(0)).to.be.equal(50);
+
+    await contract.connect(user1).editListingPrice(0, 100);
+    expect(await contract.listingPrice(0)).to.be.equal(100);
+
+    await expect(contract.connect(user2).editListingPrice(0, 100)).to.be.reverted;
+
+    await contract.grantRole(await contract.MODERATOR_ROLE(), user3.address);
+    await expect(contract.connect(user3).editListingPrice(0, 100)).to.be.reverted;
+
+    await expect(contract.editListingPrice(0, 100)).to.be.reverted;
+  });
+
+  it('Does seller can cancelListing (should be)', async function () {
+    const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
+    await Helper.changeSupportedContractIsSupported(mockERC721.address);
+
+    await Helper.create_listing(user1, mockERC721.address, 1, 50, 0);
+
+    await contract.connect(user1).cancelListing(0);
+    expect(await contract.isListingActive(0)).to.be.equal(false);
+  });
+
+  it('does moderator helper works (should be)', async function () {
+    await Helper.moderator(user2.address);
+    expect(await contract.isModerator(user2.address)).to.be.equal(true);
+  });
+
+  it('Does moderator can cancelListing (should be)', async function () {
+    const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
+    await Helper.changeSupportedContractIsSupported(mockERC721.address);
+    await Helper.create_listing(user1, mockERC721.address, 1, 50, 0);
+
+    await Helper.moderator(user2.address);
+    expect(await contract.connect(user2).callStatic.cancelListing(0)).to.be.equal(true);
+  });
+
+  // it.only('Does moderator can cancelListing (should be)', async function () {
+  //   const mockERC721 = await Helper.deploy_Mint_ApproveERC721(user1, 1);
+  //   await Helper.changeSupportedContractIsSupported(mockERC721.address);
+  //   await Helper.create_listing(user1, mockERC721.address, 1, 50, 0);
+
+  //   await Helper.moderator(user2.address);
+  //   console.log(user2.address);
+
+  //   await expect(contract.connect(user2).cancelListing(0)).to.be.equal(true);
+  // });
 });
+
+// await contract.grantRole(await contract.MODERATOR_ROLE(), user2.address);
+// expect(await contract.isModerator(user2.address)).to.be.equal(true);
+// await contract.connect(user2).cancelListing(0);
+// expect(await contract.isListingActive(0)).to.be.equal(false);
+
+// await contract.grantRole(await contract.MODERATOR_ROLE(), user3.address);
+// expect(await contract.isModerator(user3.address)).to.be.equal(true);
+// await expect(contract.connect(user2).cancelListing(0)).to.be.reverted;
+//
