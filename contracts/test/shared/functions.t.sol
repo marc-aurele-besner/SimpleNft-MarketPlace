@@ -54,6 +54,8 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
 
     marketplace.initialize(TREASSURY);
 
+    marketplace.giveModeratorAccess(MODERATOR);
+
     vm.stopPrank();
     vm.roll(block.number + 1);
     vm.warp(block.timestamp + 100);
@@ -94,6 +96,43 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     helper_buyListing(sender, listingId, RevertStatus.Success);
   }
 
+  function helper_generateSignatureAndCreateListing(
+    address sender,
+    address nftContract,
+    uint256 tokenId,
+    uint256 salePrice,
+    uint256 sellerPk,
+    RevertStatus revertType_
+  ) public {
+    address seller = vm.addr(sellerPk);
+    bytes32 domainSeparator = keccak256(
+      abi.encode(
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+        keccak256(bytes(CONTRACT_NAME)),
+        keccak256(bytes(CONTRACT_VERSION)),
+        block.chainid,
+        address(marketplace)
+      )
+    );
+    bytes32 structHash = keccak256(
+      abi.encode(
+        keccak256('CreateListing(address tokenContract,uint256 tokenId,uint256 salePrice,address seller)'),
+        address(nftContract),
+        tokenId,
+        salePrice,
+        seller
+      )
+    );
+
+    (uint8 v, bytes32 r, bytes32 s) = signature_signHash(sellerPk, SignatureType.eip712, domainSeparator, structHash);
+
+    helper_createListing(sender, address(nftContract), tokenId, salePrice, seller, v, r, s, revertType_);
+  }
+
+  function helper_generateSignatureAndCreateListing(address sender, address nftContract, uint256 tokenId, uint256 salePrice, uint256 sellerPk) public {
+    helper_generateSignatureAndCreateListing(sender, nftContract, tokenId, salePrice, sellerPk, RevertStatus.Success);
+  }
+
   function helper_createListing(
     address sender,
     address tokenContract,
@@ -105,6 +144,7 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     bytes32 s,
     RevertStatus revertType_
   ) public {
+    verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
   }
@@ -120,6 +160,28 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     bytes32 s
   ) public {
     helper_createListing(sender, tokenContract, tokenId, salePrice, seller, v, r, s, RevertStatus.Success);
+  }
+
+  function helper_generateSignatureAndBuyListing(address sender, uint256 listingId, uint256 buyerPk, RevertStatus revertType_) public {
+    address buyer = vm.addr(buyerPk);
+    bytes32 domainSeparator = keccak256(
+      abi.encode(
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+        keccak256(bytes(CONTRACT_NAME)),
+        keccak256(bytes(CONTRACT_VERSION)),
+        block.chainid,
+        address(marketplace)
+      )
+    );
+    bytes32 structHash = keccak256(abi.encode(keccak256('BuyListing(uint256 listingId,address buyer)'), listingId, buyer));
+
+    (uint8 v, bytes32 r, bytes32 s) = signature_signHash(buyerPk, SignatureType.eip712, domainSeparator, structHash);
+
+    helper_buyListing(sender, listingId, buyer, v, r, s, revertType_);
+  }
+
+  function helper_generateSignatureAndBuyListing(address sender, uint256 listingId, uint256 buyerPk) public {
+    helper_generateSignatureAndBuyListing(sender, listingId, buyerPk, RevertStatus.Success);
   }
 
   function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s, RevertStatus revertType_) public {

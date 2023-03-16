@@ -4,7 +4,7 @@
   "description": "Smart Contract of a simple Market Place for fix price NFTS sales.",
   "main": "index.js",
   "scripts": {
-    "test": "bash ./test.sh",
+    "test": "npx hardhat test && forge test",
     "build": "npx hardhat run scripts/buildAbi.js && npm run flatten",
     "coverage": "npx hardhat coverage",
     "flatten": "npx hardhat flatten > contractsFlatten/Flat.sol && npx hardhat flatten contracts/SimpleNftMarketplace.sol > contractsFlatten/SimpleNftMarketplacelat.sol",

@@ -114,12 +114,12 @@ abstract contract Controlable is AccessControlUpgradeable {
     return address(_token);
   }
 
-  function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
+  function giveModeratorAccess(address account) external onlyAdmin returns (bool success) {
     _grantRole(MODERATOR_ROLE, account);
     return true;
   }
 
-  function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
+  function giveTreasuryAccess(address account) external onlyAdmin returns (bool success) {
     _grantRole(TREASURY_ROLE, account);
     return true;
   }
