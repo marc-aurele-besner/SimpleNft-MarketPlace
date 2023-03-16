@@ -34,7 +34,7 @@
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
-    "foundry-test-utility": "^0.0.7",
+    "foundry-test-utility": "^0.1.0",
     "hardhat": "^2.12.7",
     "hardhat-awesome-cli": "^0.1.1",
     "prettier": "^2.8.4",
