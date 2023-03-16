@@ -89,11 +89,11 @@ const deploy_Mint_ApproveERC20 = async (sender, spenderAddress, _amount) => {
   return mockERC20;
 };
 
-
 const changeSupportedContract = async (contract, sender, nftAddress, value, error) => {
   await contract.connect(sender).changeSupportedContract(nftAddress, value);
   // await checkRawTxnResult(input, sender, error);
   if (!error) expect(await contract.isSupportedContract(nftAddress)).to.be.equal(value);
+};
 
 const create_listing = async (sender, contractAddress, tokenId, price, listingId) => {
   await contract.connect(sender)['createListing(address,uint256,uint256)'](contractAddress, tokenId, price);
@@ -110,7 +110,6 @@ const moderator = async (userAddress) => {
   expect(await contract.isModerator(userAddress)).to.be.equal(false);
   await contract.grantRole(await contract.MODERATOR_ROLE(), userAddress);
   expect(await contract.isModerator(userAddress)).to.be.equal(true);
-
 };
 
 module.exports = {
@@ -127,10 +126,9 @@ module.exports = {
   approveERC20,
   deploy_Mint_ApproveERC20,
 
-  changeSupportedContract
+  changeSupportedContract,
 
   create_listing,
   changeSupportedContractIsSupported,
   moderator
-
 };
