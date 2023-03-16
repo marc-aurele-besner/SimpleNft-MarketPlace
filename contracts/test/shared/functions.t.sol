@@ -17,6 +17,10 @@ interface IERC721 {
   function mint(address sender, uint256 tokenId) external;
 
   function approve(address to, uint256 tokenId) external;
+
+  function balanceOf(address owner) external view returns (uint256 balance);
+
+  function ownerOf(uint256 tokenId) external view returns (address owner);
 }
 
 interface IERC20 {
@@ -70,15 +74,26 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   event Sale(uint256 listingId, address buyer);
   event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
+  function verify_buyListing(uint256 listingId, address buyer, address seller, uint256 startBuyerBalance, uint256 startSellerBalance) public {
+    uint256 endBuyerBalance = token.balanceOf(buyer);
+    uint256 endSellerBalance = token.balanceOf(seller);
+    uint256 listingPrice = marketplace.listingPrice(listingId);
+
+    assertTrue(marketplace.isSold(listingId), 'Listing is not sold');
+    assertTrue(!marketplace.isListingActive(listingId), 'Listing is active');
+    assertEq(endBuyerBalance, startBuyerBalance - listingPrice);
+    assertEq(endSellerBalance, startSellerBalance + listingPrice);
+  }
+
   function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
     verify_revertCall(revertType_);
     vm.prank(sender);
-    marketplace.createListing(tokenContract, tokenId, salePrice);
+    uint256 listingId = marketplace.createListing(tokenContract, tokenId, salePrice);
 
     // Verify
     if (revertType_ == RevertStatus.Success) {
-      assertEq(marketplace.listingPrice(0), 100);
-      assertTrue(marketplace.isListingActive(0), 'Functions: isListingActive');
+      assertEq(marketplace.listingPrice(listingId), salePrice);
+      assertTrue(marketplace.isListingActive(listingId), 'Functions: isListingActive');
     }
   }
 
@@ -146,7 +161,13 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   ) public {
     verify_revertCall(revertType_);
     vm.prank(sender);
-    marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
+    uint256 listingId = marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
+
+    // Verify
+    if (revertType_ == RevertStatus.Success) {
+      assertEq(marketplace.listingPrice(listingId), salePrice);
+      assertTrue(marketplace.isListingActive(listingId), 'Listing is not active');
+    }
   }
 
   function helper_createListing(
@@ -185,14 +206,22 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   }
 
   function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s, RevertStatus revertType_) public {
+    uint256 startBuyerBalance = token.balanceOf(buyer);
+    address seller = marketplace.getListingDetail(listingId).seller;
+    uint256 startSellerBalance = token.balanceOf(seller);
+
     verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.buyListing(listingId, buyer, v, r, s);
+
+    if (revertType_ == RevertStatus.Success) {
+      verify_buyListing(listingId, buyer, seller, startBuyerBalance, startSellerBalance);
+      IERC721(nft).
+    }
   }
 
   function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) public {
-    vm.prank(sender);
-    marketplace.buyListing(listingId, buyer, v, r, s);
+    helper_buyListing(sender, listingId, buyer, v, r, s, RevertStatus.Success);
   }
 
   function helper_cancelListing(address sender, uint256 listingId) public {
