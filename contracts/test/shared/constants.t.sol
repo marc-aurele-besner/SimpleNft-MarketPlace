@@ -11,6 +11,11 @@ contract Constants {
   address MODERATOR = address(42_002);
   address USER = address(42_003);
 
+  address constant ADMIN = address(42_000);
+  address constant TREASURY = address(42_001);
+  address constant MODERATOR = address(42_002);
+  address constant USER = address(42_003);
+
   uint256 DEFAULT_BLOCKS_COUNT = 10;
   uint256 DEFAULT_MINT_VALUE = 1 ether;
 }

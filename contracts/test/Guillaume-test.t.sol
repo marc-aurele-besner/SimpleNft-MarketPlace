@@ -103,17 +103,46 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
   function test_SimpleNftMarketplace_basic_blacklistUser_moderator() public {
     verify_revertCall(RevertStatus.CallerNotModerator);
     helper_blacklistUser(address(2), address(1), true);
+    helper_blacklist_user(address(2), address(1), true, RevertStatus.CallerNotModerator);
     assertTrue(!marketplace.isBlacklistedUser(address(1)));
   }
   
   function test_SimpleNftMarketplace_basic_blacklistToken_admin() public {
     helper_blacklistToken(ADMIN, address(1), 0, true);
+    helper_blacklist_token(ADMIN, address(1), 0, true);
     assertTrue(marketplace.isBlacklistedToken(address(1), 0));
   }
 
   function test_SimpleNftMarketplace_basic_blacklistToken_moderator() public {
     verify_revertCall(RevertStatus.CallerNotModerator);
     helper_blacklistToken(address(2), address(1), 0, true);
+
+    helper_blacklist_token(address(2), address(1), 0, true, RevertStatus.CallerNotModerator);
     assertTrue(!marketplace.isBlacklistedToken(address(1), 0));
+  }
+
+  function test_SimpleNftMarketplace_basic_changeTransactionFee() public {
+    uint32 newTransactionFee = 500;
+    helper_changeTransactionFee(ADMIN, newTransactionFee);
+    assertEq(marketplace.transactionFee(), newTransactionFee);
+  }
+
+  function test_SimpleNftMarketplace_basic_withdrawTransactionFee() public {
+    uint256 initialTreasuryBalance = token.balanceOf(TREASURY);
+
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+    helper_mint_approve721(address(nft1), address(1), 1);
+    helper_createListing(address(1), address(nft1), 1, 100);
+    help_moveBlockAndTimeFoward(1, 100);
+    helper_mint_approve20(address(2), 100);
+    helper_buyListing(address(2), 0);
+
+    uint256 feeAmount = marketplace.calculateListingFee(0);
+
+    helper_withdrawTransactionFee();
+
+    // Check that the treasury balance has increased by the fee amount
+    assertEq(token.balanceOf(TREASURY), initialTreasuryBalance + feeAmount);
   }
 }
