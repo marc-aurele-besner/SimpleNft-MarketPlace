@@ -91,4 +91,101 @@ contract SimpleNftMarketplace_test is Helper {
 
     helper_generateSignatureAndBuyListing(address(2), 0, SIGNER2_PRIVATEKEY);
   }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_with_signatures_and_transactionFee() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+    helper_changeTransactionFee(ADMIN, 5_000); // 5%
+
+    helper_mint_approve721(address(nft1), SIGNER1, 1);
+
+    helper_generateSignatureAndCreateListing(address(1), address(nft1), 1, 100, SIGNER1_PRIVATEKEY);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(SIGNER2, 100);
+
+    helper_generateSignatureAndBuyListing(address(2), 0, SIGNER2_PRIVATEKEY);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_with_signatures_and_transactionFee_afterCreateListing() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), SIGNER1, 1);
+
+    helper_generateSignatureAndCreateListing(address(1), address(nft1), 1, 100, SIGNER1_PRIVATEKEY);
+
+    help_moveBlockAndTimeFoward(1, 100);
+    helper_changeTransactionFee(ADMIN, 5_000); // 5%
+
+    helper_mint_approve20(SIGNER2, 100);
+
+    helper_generateSignatureAndBuyListing(address(2), 0, SIGNER2_PRIVATEKEY);
+  }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_with_signatures_and_transactionFee_5xSameBlock() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+    helper_changeTransactionFee(ADMIN, 5_000); // 5%
+
+    helper_mint_approve721(address(nft1), SIGNER1, 1);
+    helper_mint_approve721(address(nft1), SIGNER2, 2);
+    helper_mint_approve721(address(nft1), SIGNER4, 3);
+    helper_mint_approve721(address(nft1), SIGNER5, 4);
+    helper_mint_approve721(address(nft1), SIGNER3, 5);
+
+    helper_generateSignatureAndCreateListing(address(1), address(nft1), 1, 100, SIGNER1_PRIVATEKEY);
+    helper_generateSignatureAndCreateListing(address(2), address(nft1), 2, 200, SIGNER2_PRIVATEKEY);
+    helper_generateSignatureAndCreateListing(address(3), address(nft1), 3, 300, SIGNER4_PRIVATEKEY);
+    helper_generateSignatureAndCreateListing(address(4), address(nft1), 4, 400, SIGNER5_PRIVATEKEY);
+    helper_generateSignatureAndCreateListing(address(5), address(nft1), 5, 500, SIGNER3_PRIVATEKEY);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(SIGNER5, 100);
+    helper_mint_approve20(SIGNER4, 200);
+    helper_mint_approve20(SIGNER3, 300);
+    helper_mint_approve20(SIGNER2, 400);
+    helper_mint_approve20(SIGNER1, 500);
+
+    helper_generateSignatureAndBuyListing(address(11), 0, SIGNER5_PRIVATEKEY);
+    helper_generateSignatureAndBuyListing(address(12), 1, SIGNER4_PRIVATEKEY);
+    helper_generateSignatureAndBuyListing(address(13), 2, SIGNER3_PRIVATEKEY);
+    helper_generateSignatureAndBuyListing(address(14), 3, SIGNER2_PRIVATEKEY);
+    helper_generateSignatureAndBuyListing(address(15), 4, SIGNER1_PRIVATEKEY);
+  }
+
+  // function test_SimpleNftMarketplace_basic_createListing_and_buyListing_with_signatures_and_transactionFee_() public {
+  //   helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+  //   helper_changeSupportedContract(ADMIN, address(nft1), true);
+  //   helper_changeTransactionFee(ADMIN, 150_000); // 5%
+
+  //   helper_mint_approve721(address(nft1), SIGNER1, 1);
+
+  //   helper_generateSignatureAndCreateListing(address(1), address(nft1), 1, 200, SIGNER1_PRIVATEKEY);
+
+  //   help_moveBlockAndTimeFoward(1, 100);
+
+  //   helper_mint_approve20(SIGNER2, 200);
+
+  //   helper_generateSignatureAndBuyListing(address(2), 0, SIGNER2_PRIVATEKEY, RevertStatus.OverUnderflow);
+  // }
+
+  function test_SimpleNftMarketplace_basic_createListing_and_buyListing_with_signatures_with_lowerPriceThanSignature() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), SIGNER1, 1);
+
+    (address seller, uint8 v, bytes32 r, bytes32 s) = helper_generateSignature(address(1), address(nft1), 1, 100, SIGNER1_PRIVATEKEY);
+
+    helper_createListing(address(1), address(nft1), 1, 50, seller, v, r, s, RevertStatus.InvalidSignature);
+
+    help_moveBlockAndTimeFoward(1, 100);
+
+    helper_mint_approve20(SIGNER2, 100);
+
+    helper_generateSignatureAndBuyListing(address(2), 0, SIGNER2_PRIVATEKEY, RevertStatus.SellPriceAboveZeroOrInvalidListing);
+  }
 }

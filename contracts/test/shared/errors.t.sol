@@ -24,6 +24,7 @@ contract Errors is DSTest {
     ContractTokenNotSupported,
     ListingSold,
     SellPriceAboveZero,
+    SellPriceAboveZeroOrInvalidListing,
     TokenBlacklisted,
     UserBlacklisted,
     OnlyRenounceRolesForSelf,
@@ -31,7 +32,8 @@ contract Errors is DSTest {
     ContractIsInitializing,
     ContractAlreasyInitialized,
     Erc721InvalidTokenId,
-    Erc20InsufficientAllowance
+    Erc20InsufficientAllowance,
+    OverUnderflow
   }
 
   // Associate your error with a revert message and add it to the mapping.
@@ -47,14 +49,17 @@ contract Errors is DSTest {
     _errors[RevertStatus.ContractTokenNotSupported] = 'ListingManager: Contract token is not supported';
     _errors[RevertStatus.ListingSold] = 'ListingManager: Listing already sold';
     _errors[RevertStatus.SellPriceAboveZero] = 'ListingManager: Sell price must be above zero';
+    _errors[RevertStatus.SellPriceAboveZeroOrInvalidListing] = 'ListingManager: Sell price must be above zero or listing does not exist';
     _errors[RevertStatus.TokenBlacklisted] = 'ListingManager: Contract token is blacklisted';
     _errors[RevertStatus.UserBlacklisted] = 'ListingManager: User is blacklisted';
     _errors[RevertStatus.OnlyRenounceRolesForSelf] = 'AccessControl: can only renounce roles for self';
     _errors[RevertStatus.ContractIsNotInitializing] = 'Initializable: contract is not initializing';
     _errors[RevertStatus.ContractIsInitializing] = 'Initializable: contract is initializing';
     _errors[RevertStatus.ContractAlreasyInitialized] = 'Initializable: contract is already initialized';
+    _errors[RevertStatus.InvalidSignature] = 'ValidateSignature: invalid signature';
     _errors[RevertStatus.Erc721InvalidTokenId] = 'ERC721: invalid token ID';
     _errors[RevertStatus.Erc20InsufficientAllowance] = 'ERC20: insufficient allowance';
+    _errors[RevertStatus.OverUnderflow] = 'Arithmetic over/underflow';
   }
 
   // Return the error message associated with the error.

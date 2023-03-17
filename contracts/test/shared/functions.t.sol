@@ -74,15 +74,28 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   event Sale(uint256 listingId, address buyer);
   event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
-  function verify_buyListing(uint256 listingId, address buyer, address seller, uint256 startBuyerBalance, uint256 startSellerBalance) public {
+  function verify_buyListing(
+    uint256 listingId,
+    address buyer,
+    address seller,
+    uint256 startBuyerBalance,
+    uint256 startSellerBalance,
+    uint256 startMarketplaceBalance
+  ) public {
     uint256 endBuyerBalance = token.balanceOf(buyer);
     uint256 endSellerBalance = token.balanceOf(seller);
+    uint256 endMarketplaceBalance = token.balanceOf(address(marketplace));
     uint256 listingPrice = marketplace.listingPrice(listingId);
 
     assertTrue(marketplace.isSold(listingId), 'Listing is not sold');
     assertTrue(!marketplace.isListingActive(listingId), 'Listing is active');
-    assertEq(endBuyerBalance, startBuyerBalance - listingPrice);
-    assertEq(endSellerBalance, startSellerBalance + listingPrice);
+    assertEq(endBuyerBalance, startBuyerBalance - listingPrice, 'Buyer balance is incorrect');
+
+    uint256 transactionFee = marketplace.transactionFee();
+    uint256 fee = (listingPrice * transactionFee) / marketplace.BASE_TRANSACTION_FEE();
+
+    assertEq(endSellerBalance, startSellerBalance + (listingPrice - fee), 'Seller balance is incorrect');
+    assertEq(endMarketplaceBalance, startMarketplaceBalance + fee, 'Marketplace balance is incorrect');
   }
 
   function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
@@ -111,15 +124,14 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     helper_buyListing(sender, listingId, RevertStatus.Success);
   }
 
-  function helper_generateSignatureAndCreateListing(
+  function helper_generateSignature(
     address sender,
     address nftContract,
     uint256 tokenId,
     uint256 salePrice,
-    uint256 sellerPk,
-    RevertStatus revertType_
-  ) public {
-    address seller = vm.addr(sellerPk);
+    uint256 sellerPk
+  ) public returns (address seller, uint8 v, bytes32 r, bytes32 s) {
+    seller = vm.addr(sellerPk);
     bytes32 domainSeparator = keccak256(
       abi.encode(
         keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
@@ -139,7 +151,18 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
       )
     );
 
-    (uint8 v, bytes32 r, bytes32 s) = signature_signHash(sellerPk, SignatureType.eip712, domainSeparator, structHash);
+    (v, r, s) = signature_signHash(sellerPk, SignatureType.eip712, domainSeparator, structHash);
+  }
+
+  function helper_generateSignatureAndCreateListing(
+    address sender,
+    address nftContract,
+    uint256 tokenId,
+    uint256 salePrice,
+    uint256 sellerPk,
+    RevertStatus revertType_
+  ) public {
+    (address seller, uint8 v, bytes32 r, bytes32 s) = helper_generateSignature(sender, nftContract, tokenId, salePrice, sellerPk);
 
     helper_createListing(sender, address(nftContract), tokenId, salePrice, seller, v, r, s, revertType_);
   }
@@ -207,16 +230,19 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
 
   function helper_buyListing(address sender, uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s, RevertStatus revertType_) public {
     uint256 startBuyerBalance = token.balanceOf(buyer);
-    address seller = marketplace.getListingDetail(listingId).seller;
-    uint256 startSellerBalance = token.balanceOf(seller);
+    uint256 startMarketplaceBalance = token.balanceOf(address(marketplace));
+
+    SimpleNftMarketplace.Listing memory listingDetail = marketplace.getListingDetail(listingId);
+
+    uint256 startSellerBalance = token.balanceOf(listingDetail.seller);
 
     verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.buyListing(listingId, buyer, v, r, s);
 
     if (revertType_ == RevertStatus.Success) {
-      verify_buyListing(listingId, buyer, seller, startBuyerBalance, startSellerBalance);
-      IERC721(nft).
+      verify_buyListing(listingId, buyer, listingDetail.seller, startBuyerBalance, startSellerBalance, startMarketplaceBalance);
+      assertEq(IERC721(listingDetail.tokenContract).ownerOf(listingDetail.tokenId), buyer);
     }
   }
 
