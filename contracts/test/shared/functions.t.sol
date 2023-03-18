@@ -99,6 +99,7 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   }
 
   function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
+    uint256 balance = IERC721(tokenContract).balanceOf(sender);
     verify_revertCall(revertType_);
     vm.prank(sender);
     uint256 listingId = marketplace.createListing(tokenContract, tokenId, salePrice);
@@ -107,6 +108,8 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     if (revertType_ == RevertStatus.Success) {
       assertEq(marketplace.listingPrice(listingId), salePrice);
       assertTrue(marketplace.isListingActive(listingId), 'Functions: isListingActive');
+      assertEq(IERC721(tokenContract).ownerOf(tokenId), address(marketplace));
+      assertEq(IERC721(tokenContract).balanceOf(sender), balance - 1);
     }
   }
 
@@ -182,6 +185,7 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     bytes32 s,
     RevertStatus revertType_
   ) public {
+    uint256 balance = IERC721(tokenContract).balanceOf(sender);
     verify_revertCall(revertType_);
     vm.prank(sender);
     uint256 listingId = marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
@@ -190,6 +194,8 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     if (revertType_ == RevertStatus.Success) {
       assertEq(marketplace.listingPrice(listingId), salePrice);
       assertTrue(marketplace.isListingActive(listingId), 'Listing is not active');
+      assertEq(IERC721(tokenContract).ownerOf(tokenId), address(marketplace));
+      assertEq(IERC721(tokenContract).balanceOf(sender), balance - 1);
     }
   }
 
@@ -234,6 +240,7 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
 
     SimpleNftMarketplace.Listing memory listingDetail = marketplace.getListingDetail(listingId);
 
+    uint256 balance = IERC721(listingDetail.tokenContract).balanceOf(buyer);
     uint256 startSellerBalance = token.balanceOf(listingDetail.seller);
 
     verify_revertCall(revertType_);
@@ -243,6 +250,7 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     if (revertType_ == RevertStatus.Success) {
       verify_buyListing(listingId, buyer, listingDetail.seller, startBuyerBalance, startSellerBalance, startMarketplaceBalance);
       assertEq(IERC721(listingDetail.tokenContract).ownerOf(listingDetail.tokenId), buyer);
+      assertEq(IERC721(listingDetail.tokenContract).balanceOf(buyer), balance + 1);
     }
   }
 
