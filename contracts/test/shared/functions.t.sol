@@ -98,18 +98,36 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     assertEq(endMarketplaceBalance, startMarketplaceBalance + fee, 'Marketplace balance is incorrect');
   }
 
-  function helper_createListing(address sender, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
-    uint256 balance = IERC721(tokenContract).balanceOf(sender);
+  function verify_createListing(
+    uint256 listingId,
+    address seller,
+    address tokenContract,
+    uint256 tokenId,
+    uint256 salePrice,
+    uint256 startSellerBalance,
+    uint256 startMarketplaceBalance
+  ) public {
+    uint256 endSellerBalance = IERC721(tokenContract).balanceOf(seller);
+    uint256 endMarketplaceBalance = IERC721(tokenContract).balanceOf(address(marketplace));
+
+    assertTrue(marketplace.isListingActive(listingId), 'Listing is not active');
+    assertEq(marketplace.listingPrice(listingId), salePrice);
+    assertEq(IERC721(tokenContract).ownerOf(tokenId), address(marketplace));
+    assertEq(IERC721(tokenContract).balanceOf(address(marketplace)), startMarketplaceBalance + 1);
+    assertEq(IERC721(tokenContract).balanceOf(seller), startSellerBalance - 1);
+  }
+
+  function helper_createListing(address seller, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
+    uint256 startSellerBalance = IERC721(tokenContract).balanceOf(seller);
+    uint256 startMarketplaceBalance = IERC721(tokenContract).balanceOf(address(marketplace));
+
     verify_revertCall(revertType_);
-    vm.prank(sender);
+    vm.prank(seller);
     uint256 listingId = marketplace.createListing(tokenContract, tokenId, salePrice);
 
     // Verify
     if (revertType_ == RevertStatus.Success) {
-      assertEq(marketplace.listingPrice(listingId), salePrice);
-      assertTrue(marketplace.isListingActive(listingId), 'Functions: isListingActive');
-      assertEq(IERC721(tokenContract).ownerOf(tokenId), address(marketplace));
-      assertEq(IERC721(tokenContract).balanceOf(sender), balance - 1);
+      verify_createListing(listingId, seller, tokenContract, tokenId, salePrice, startSellerBalance, startMarketplaceBalance);
     }
   }
 
@@ -185,17 +203,16 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     bytes32 s,
     RevertStatus revertType_
   ) public {
-    uint256 balance = IERC721(tokenContract).balanceOf(sender);
+    uint256 startSellerBalance = IERC721(tokenContract).balanceOf(seller);
+    uint256 startMarketplaceBalance = IERC721(tokenContract).balanceOf(address(marketplace));
+
     verify_revertCall(revertType_);
     vm.prank(sender);
     uint256 listingId = marketplace.createListing(tokenContract, tokenId, salePrice, seller, v, r, s);
 
     // Verify
     if (revertType_ == RevertStatus.Success) {
-      assertEq(marketplace.listingPrice(listingId), salePrice);
-      assertTrue(marketplace.isListingActive(listingId), 'Listing is not active');
-      assertEq(IERC721(tokenContract).ownerOf(tokenId), address(marketplace));
-      assertEq(IERC721(tokenContract).balanceOf(sender), balance - 1);
+      verify_createListing(listingId, seller, tokenContract, tokenId, salePrice, startSellerBalance, startMarketplaceBalance);
     }
   }
 
@@ -240,7 +257,6 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
 
     SimpleNftMarketplace.Listing memory listingDetail = marketplace.getListingDetail(listingId);
 
-    uint256 balance = IERC721(listingDetail.tokenContract).balanceOf(buyer);
     uint256 startSellerBalance = token.balanceOf(listingDetail.seller);
 
     verify_revertCall(revertType_);
@@ -249,8 +265,6 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
 
     if (revertType_ == RevertStatus.Success) {
       verify_buyListing(listingId, buyer, listingDetail.seller, startBuyerBalance, startSellerBalance, startMarketplaceBalance);
-      assertEq(IERC721(listingDetail.tokenContract).ownerOf(listingDetail.tokenId), buyer);
-      assertEq(IERC721(listingDetail.tokenContract).balanceOf(buyer), balance + 1);
     }
   }
 
