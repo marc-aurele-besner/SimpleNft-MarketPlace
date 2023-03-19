@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import './Controlable.sol';
-
+import 'hardhat/console.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
@@ -57,7 +57,7 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     Listing memory listing = _listings[listingId];
     require(listing.buyTimestamp == 0, 'ListingManager: Listing already sold');
-    require(_listings[listingId].salePrice > 0, 'ListingManager: Sell price must be above zero');
+    require(_listings[listingId].salePrice > 0, 'ListingManager: Sell price must be above zero or listing does not exist');
 
     uint256 listingFee = _calculateListingFee(listingId);
     uint256 amount = listing.salePrice - listingFee;
