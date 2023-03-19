@@ -87,6 +87,7 @@ abstract contract Controlable is AccessControlUpgradeable {
     } else {
       blacklistUser[userAddress] = false;
     }
+    success = true;
   }
 
   function _isBlacklistedUser(address userAddress) internal view returns (bool isBlacklisted) {
@@ -101,6 +102,10 @@ abstract contract Controlable is AccessControlUpgradeable {
     return supportedContracts[tokenContract];
   }
 
+  function accumulatedFees() public view onlyAdmin returns (uint256) {
+    return _accumulatedTransactionFee;
+  }
+
   function transactionFee() public view returns (uint32) {
     return _transactionFee;
   }
@@ -109,12 +114,12 @@ abstract contract Controlable is AccessControlUpgradeable {
     return address(_token);
   }
 
-  function giveModeratorAccess(address account) internal onlyAdmin returns (bool success) {
+  function giveModeratorAccess(address account) external onlyAdmin returns (bool success) {
     _grantRole(MODERATOR_ROLE, account);
     return true;
   }
 
-  function giveTreasuryAccess(address account) internal onlyAdmin returns (bool success) {
+  function giveTreasuryAccess(address account) external onlyAdmin returns (bool success) {
     _grantRole(TREASURY_ROLE, account);
     return true;
   }

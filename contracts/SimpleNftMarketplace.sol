@@ -51,7 +51,7 @@ contract SimpleNftMarketplace is ListingManager, ValidateSignature {
     bytes32 s
   ) external returns (uint256 listingId) {
     require(_verifyCreateListing(tokenContract, tokenId, salePrice, seller, v, r, s), 'SimpleNftMarketplace: invalid signature');
-    return _createListing(tokenContract, tokenId, salePrice, msg.sender);
+    return _createListing(tokenContract, tokenId, salePrice, seller);
   }
 
   function buyListing(uint256 listingId, address buyer, uint8 v, bytes32 r, bytes32 s) external returns (bool success) {
