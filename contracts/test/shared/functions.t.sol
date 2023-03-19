@@ -56,7 +56,9 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     nft2 = new MockERC721();
     nft3 = new MockERC721();
 
-    marketplace.initialize(TREASURY);
+    marketplace.initialize(TREASSURY);
+
+    marketplace.giveModeratorAccess(MODERATOR);
 
     vm.stopPrank();
     vm.roll(block.number + 1);
@@ -262,7 +264,7 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     marketplace.buyListing(listingId, buyer, v, r, s);
 
     if (revertType_ == RevertStatus.Success) {
-      verify_buyListing(listingId, buyer, seller, startBuyerBalance, startSellerBalance);
+      verify_buyListing(listingId, buyer, listingDetail.seller, startBuyerBalance, startSellerBalance, startMarketplaceBalance);
     }
   }
 
@@ -323,17 +325,6 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     token.mint(sender, amount);
     vm.prank(sender);
     token.approve(address(marketplace), amount);
-  }
-
-
-  function helper_blacklistUser(address sender, address userAddress, bool set) public {
-    vm.prank(sender);
-    marketplace.blacklistUser(userAddress, set);
-  }
-
-  function helper_blacklistToken(address sender, address tokenContract, uint256 tokenId, bool isBlackListed) public {
-    vm.prank(sender);
-    marketplace.blacklistToken(tokenContract, tokenId, isBlackListed);
   }
 
   function helper_blacklist_user(address sender, address userAddress, bool set, RevertStatus revertType) public {
