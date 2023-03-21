@@ -354,4 +354,14 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   function helper_blacklist_token(address sender, address contractAddress, uint256 tokenId, bool set) public {
     helper_blacklist_token(sender, contractAddress, tokenId, set, RevertStatus.Success);
   }
+
+  function helper_editListingPrice(address sender, uint256 listingId, uint256 newPrice, RevertStatus revertType) public {
+    verify_revertCall(revertType);
+    vm.prank(sender);
+    marketplace.editListingPrice(listingId, newPrice);
+
+    if (revertType == RevertStatus.Success) {
+      assertEq(marketplace.listingPrice(listingId), newPrice, 'Listing price not updated');
+    }
+  }
 }
