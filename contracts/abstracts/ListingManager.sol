@@ -57,7 +57,10 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   function _buyListing(uint256 listingId, address buyer) internal returns (bool success) {
     Listing memory listing = _listings[listingId];
     require(listing.buyTimestamp == 0, 'ListingManager: Listing already sold');
-    require(_listings[listingId].salePrice > 0, 'ListingManager: Sell price must be above zero or listing does not exist');
+    require(listing.salePrice > 0, 'ListingManager: Sell price must be above zero or listing does not exist');
+    require(!_isBlacklistedUser(listing.seller), 'ListingManager: Seller is blacklisted');
+    require(!_isBlacklistedUser(buyer), 'ListingManager: Buyer is blacklisted');
+    require(_isSupportedContract(listing.tokenContract), 'ListingManager: Contract token is not supported');
 
     uint256 listingFee = _calculateListingFee(listingId);
     uint256 amount = listing.salePrice - listingFee;
