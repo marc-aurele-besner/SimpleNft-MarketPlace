@@ -240,4 +240,22 @@ contract SimpleNftMarketplace_test is Helper {
 
     helper_cancelListing(address(8), 0, RevertStatus.CallerNotListingOwnerOrModerator);
   }
+
+  function test_fuzzCreateListing(uint256 salePrice) public {
+    vm.assume(salePrice > 0 && salePrice < 100_000_000_000_000_000_000);
+
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), SIGNER1, 1);
+
+    helper_generateSignatureAndCreateListing(address(1), address(nft1), 1, salePrice, SIGNER1_PRIVATEKEY);
+
+    help_moveBlockAndTimeFoward(1, salePrice);
+    helper_changeTransactionFee(ADMIN, 5_000); // 5%
+
+    helper_mint_approve20(SIGNER2, salePrice);
+
+    helper_generateSignatureAndBuyListing(address(2), 0, SIGNER2_PRIVATEKEY);
+  }
 }
