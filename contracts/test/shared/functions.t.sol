@@ -117,6 +117,19 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     assertEq(IERC721(tokenContract).balanceOf(seller), startSellerBalance - 1);
   }
 
+  function verify_cancelListing(uint256 listingId, uint256 startSellerBalance, uint256 startMarketplaceBalance) public {
+    SimpleNftMarketplace.Listing memory listingDetail = marketplace.getListingDetail(listingId);
+
+    uint256 endSellerBalance = IERC721(listingDetail.tokenContract).balanceOf(listingDetail.seller);
+    uint256 endMarketplaceBalance = IERC721(listingDetail.tokenContract).balanceOf(address(marketplace));
+
+    assertTrue(!marketplace.isListingActive(listingId), 'Listing should be inactive');
+    assertEq(marketplace.listingPrice(listingId), 0, 'Listing price should be 0');
+    assertEq(IERC721(listingDetail.tokenContract).ownerOf(listingDetail.tokenId), listingDetail.seller);
+    assertEq(IERC721(listingDetail.tokenContract).balanceOf(address(marketplace)), startMarketplaceBalance - 1);
+    assertEq(IERC721(listingDetail.tokenContract).balanceOf(listingDetail.seller), startSellerBalance + 1);
+  }
+
   function helper_createListing(address seller, address tokenContract, uint256 tokenId, uint256 salePrice, RevertStatus revertType_) public {
     uint256 startSellerBalance = IERC721(tokenContract).balanceOf(seller);
     uint256 startMarketplaceBalance = IERC721(tokenContract).balanceOf(address(marketplace));
@@ -274,13 +287,17 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
   }
 
   function helper_cancelListing(address sender, uint256 listingId, RevertStatus revertType_) public {
+    SimpleNftMarketplace.Listing memory listingDetail = marketplace.getListingDetail(listingId);
+
+    uint256 startSellerBalance = IERC721(listingDetail.tokenContract).balanceOf(listingDetail.seller);
+    uint256 startMarketplaceBalance = IERC721(listingDetail.tokenContract).balanceOf(address(marketplace));
+
     verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.cancelListing(listingId);
 
     if (revertType_ == RevertStatus.Success) {
-      assertTrue(!marketplace.isListingActive(listingId), 'Listing should be inactive');
-      assertEq(marketplace.listingPrice(listingId), 0, 'Listing price should be 0');
+      verify_cancelListing(listingId, startSellerBalance, startMarketplaceBalance);
     }
   }
 
