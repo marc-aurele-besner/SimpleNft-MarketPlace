@@ -14,6 +14,8 @@ module.exports = {
   SELL_PRICE_ABOVE_ZERO: 'ListingManager: Sell price must be above zero',
   TOKEN_BLACKLISTED: 'ListingManager: Contract token is blacklisted',
   USER_BLACKLISTED: 'ListingManager: User is blacklisted',
+  SELLER_BLACKLISTED: 'ListingManager: Seller is blacklisted',
+  BUYER_BLACKLISTED: 'ListingManager: Buyer is blacklisted',
 
   ONLY_RENOUNCE_ROLES_FOR_SELF: 'AccessControl: can only renounce roles for self',
 
