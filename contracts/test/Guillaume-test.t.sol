@@ -139,4 +139,15 @@ contract SimpleNftMarketplace_test_guillaume_test is Helper {
     // Check that the treasury balance has increased by the fee amount
     assertEq(token.balanceOf(TREASSURY), initialTreasuryBalance + feeAmount);
   }
+
+  function test_SimpleNftMarketplace_basic_editListingPrice() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+
+    helper_mint_approve721(address(nft1), address(1), 1);
+
+    helper_createListing(address(1), address(nft1), 1, 100);
+
+    helper_editListingPrice(address(1), 0, 200, RevertStatus.Success);
+  }
 }
