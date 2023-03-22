@@ -59,7 +59,6 @@ contract Errors is DSTest {
     _errors[RevertStatus.InvalidSignature] = 'ValidateSignature: invalid signature';
     _errors[RevertStatus.Erc721InvalidTokenId] = 'ERC721: invalid token ID';
     _errors[RevertStatus.Erc20InsufficientAllowance] = 'ERC20: insufficient allowance';
-    _errors[RevertStatus.OverUnderflow] = 'Arithmetic over/underflow';
   }
 
   // Return the error message associated with the error.

@@ -81,13 +81,11 @@ abstract contract ListingManager is Controlable, IERC721ReceiverUpgradeable {
   }
 
   function _cancelListing(uint256 listingId) internal returns (bool) {
-    address tokenContract = _listings[listingId].tokenContract;
-    address seller = _listings[listingId].seller;
-    uint256 tokenId = _listings[listingId].tokenId;
+    Listing memory listing = _listings[listingId];
 
     _listings[listingId].salePrice = 0;
 
-    IERC721Upgradeable(tokenContract).safeTransferFrom(address(this), seller, tokenId);
+    IERC721Upgradeable(listing.tokenContract).safeTransferFrom(address(this), listing.seller, listing.tokenId);
     return true;
   }
 
