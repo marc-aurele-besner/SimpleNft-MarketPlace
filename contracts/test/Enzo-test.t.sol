@@ -163,6 +163,20 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     assertEq(marketplace.listingPrice(0), 50);
   }
 
+  function test_SimpleNftMarketplace_basic_cancelListing_by_moderator() public {
+    helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
+    helper_changeSupportedContract(ADMIN, address(nft1), true);
+    // Mint token, approve marketplace
+    helper_mint_approve721(address(nft1), address(1), 1);
+    // Create listing
+    helper_createListing(address(1), address(nft1), 1, 100);
+    // Verify
+    assertEq(marketplace.listingPrice(0), 100);
+    assertTrue(marketplace.isListingActive(0), 'Listing is not active');
+    // Cancel
+    helper_cancelListing(ADMIN, 0);
+  }
+
   // function test_SimpleNftMarketplace_transactionFee() public {
   //   helper_changeToken(ADMIN, IERC20Upgradeable(address(token)));
   //   helper_changeSupportedContract(ADMIN, address(nft1), true);
