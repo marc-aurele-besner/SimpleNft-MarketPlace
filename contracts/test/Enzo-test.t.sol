@@ -73,8 +73,7 @@ contract Enzo_test_SimpleNftMarketplace is Helper {
     assertEq(marketplace.listingPrice(0), 100);
     assertTrue(marketplace.isListingActive(0), 'Listing is not active');
     // Cancel without permission
-    Errors.verify_revertCall(RevertStatus.CallerNotListingOwnerOrModerator);
-    helper_cancelListing(address(2), 0);
+    helper_cancelListing(address(2), 0, RevertStatus.CallerNotListingOwnerOrModerator);
     assertEq(marketplace.listingPrice(0), 100);
     assertTrue(marketplace.isListingActive(0), 'Listing is not active');
     // test with ModoAccess

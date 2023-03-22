@@ -259,7 +259,8 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
 
     uint256 startSellerBalance = token.balanceOf(listingDetail.seller);
 
-    verify_revertCall(revertType_);
+    if (revertType_ == RevertStatus.OverUnderflow) vm.expectRevert(abi.encodeWithSignature('Panic(uint256)', 0x11));
+    else verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.buyListing(listingId, buyer, v, r, s);
 
@@ -272,9 +273,19 @@ contract Functions is Constants, Errors, TestStorage, Signatures {
     helper_buyListing(sender, listingId, buyer, v, r, s, RevertStatus.Success);
   }
 
-  function helper_cancelListing(address sender, uint256 listingId) public {
+  function helper_cancelListing(address sender, uint256 listingId, RevertStatus revertType_) public {
+    verify_revertCall(revertType_);
     vm.prank(sender);
     marketplace.cancelListing(listingId);
+
+    if (revertType_ == RevertStatus.Success) {
+      assertTrue(!marketplace.isListingActive(listingId), 'Listing should be inactive');
+      assertEq(marketplace.listingPrice(listingId), 0, 'Listing price should be 0');
+    }
+  }
+
+  function helper_cancelListing(address sender, uint256 listingId) public {
+    helper_cancelListing(sender, listingId, RevertStatus.Success);
   }
 
   function helper_changeToken(address sender, IERC20Upgradeable contractAddress, RevertStatus revertType) public {
