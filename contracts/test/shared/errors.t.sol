@@ -27,6 +27,8 @@ contract Errors is DSTest {
     SellPriceAboveZeroOrInvalidListing,
     TokenBlacklisted,
     UserBlacklisted,
+    SellerBlacklisted,
+    BuyerBlacklisted,
     OnlyRenounceRolesForSelf,
     ContractIsNotInitializing,
     ContractIsInitializing,
@@ -52,6 +54,8 @@ contract Errors is DSTest {
     _errors[RevertStatus.SellPriceAboveZeroOrInvalidListing] = 'ListingManager: Sell price must be above zero or listing does not exist';
     _errors[RevertStatus.TokenBlacklisted] = 'ListingManager: Contract token is blacklisted';
     _errors[RevertStatus.UserBlacklisted] = 'ListingManager: User is blacklisted';
+    _errors[RevertStatus.SellerBlacklisted] = 'ListingManager: Seller is blacklisted';
+    _errors[RevertStatus.BuyerBlacklisted] = 'ListingManager: Buyer is blacklisted';
     _errors[RevertStatus.OnlyRenounceRolesForSelf] = 'AccessControl: can only renounce roles for self';
     _errors[RevertStatus.ContractIsNotInitializing] = 'Initializable: contract is not initializing';
     _errors[RevertStatus.ContractIsInitializing] = 'Initializable: contract is initializing';
