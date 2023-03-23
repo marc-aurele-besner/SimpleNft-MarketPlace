@@ -1,7 +1,6 @@
 name: Run Hardhat Test with NPM
 
 on:
-  push:
   pull_request:
   workflow_dispatch:
 
