@@ -31,7 +31,7 @@
   "homepage": "https://github.com/marc-aurele-besner/SimpleNft-MarketPlace#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
-    "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts": "^5.0.0",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "foundry-test-utility": "^0.1.0",
