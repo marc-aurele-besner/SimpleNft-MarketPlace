@@ -8,7 +8,7 @@ jobs:
   test_hardhat_npm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: NPM Clean Install
         run: npm ci
       - name: Hardhat Compile
